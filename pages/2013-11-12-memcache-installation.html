@@ -1,0 +1,33 @@
+<p>Memcache</p>
+<p>Prerequisite :  libevent on shell</p>
+<p>libevent on shell Installation</p>
+<pre>
+wget https://github.com/downloads/libevent/libevent/libevent-2.0.21-stable.tar.gz
+tar xfz libevent-1.4.8-stable.tar.gz
+cd libevent-1.4.8-stable
+./configure
+make
+sudo make install
+</pre>
+<p>Now we need to create a symlink for libevent</p>
+<pre>
+ln -s /usr/local/lib/libevent-1.4.so.2 /usr/lib 
+</pre>
+<p>Memcached Installation :- </p>
+<pre>
+wget http://danga.com/memcached/dist/memcached-1.4.15.tar.gz
+tar xfz memcached-1.2.6.tar.gz
+cd memcached-1.2.6
+./configure
+make
+make install
+</pre>
+<p>Now Run Memcached as a daemon.</p>
+<pre>
+memcached -d -m 1024 -u root -l 127.0.0.1 -p 11211 on shell
+</pre>
+<p>d = daemon<br />
+m = memory<br />
+u = user<br />
+l = IP to listen to<br />
+p = port</p>

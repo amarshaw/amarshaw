@@ -1,0 +1,47 @@
+﻿<p style="text-align: center;" align="center"><strong>LVM HOW TO</strong></span></p>
+<p>Create partition of newly added disk space in LVM format</p>
+<pre>#fdisk /dev/sdb</pre>
+<p>Activate the partition</p>
+<pre>#partprobe</pre>
+<p>Now Create Physical Volume</p>
+<pre>#pvcreate /dev/sdb1</pre>
+<p>Check newly created Physical Volume</p>
+<pre>#pvdisplay</pre>
+<pre>#pvs</pre>
+<p>Create Volume Group</p>
+<pre>#vgcreate -s 16M amar_vg /dev/sdb1</pre>
+<p>Check newly created Volume Group</p>
+<pre>#vgdisplay</pre>
+<p>Now Create Logical Volume</p>
+<pre>#lvcreate -L 8.5G -n amar_lv amar_vg</pre>
+<p>Check newly created Logical Volume</p>
+<pre>#lvdisplay</pre>
+<p>Format logical volumes with xfs file system</p>
+<pre>#mkfs -t xfs /dev/amar_vg/amar_lv</pre>
+<p>Create a directory where the logical volume we want to map</p>
+<pre>#mkdir amar</pre>
+<p>Mount the logical volume with newly create directory</p>
+<pre>#mount -t xfs /dev/amar_vg/amar_lv /amar</pre>
+<p>Check whether it’s mounted or not</p>
+<pre>#df -h</pre>
+<p>Now put the entry of all the mount points in fstab file for auto mount during system startup.</p>
+<pre>#vi /etc/fstab
+
+/dev/mapper//amar_vg_amar_lv /amar xfs rw 1 2</pre>
+<p>Re-Run this fstab file.</p>
+<pre>#mount -a</pre>
+<p>Now, for safe side, restart you system to check all the mount points has mounted after restart or not.</p>
+<p>Increase LVM partition</p>
+<pre># lvextend -L+1G /dev/amar_vg/amar_lv</pre>
+<p>Partition extended, 1 GB space is added</p>
+<p>To make effective in file system</p>
+<p>For XFS filesystem</p>
+<pre># xfs_growfs /amar</pre>
+<p>For ext2/ext3 file system.</p>
+<pre>#umount /amar</pre>
+<pre>#resize2fs /dev/amar_vg/amar_lv</pre>
+<p>Or</p>
+<pre>#ext2resize /dev/amar_vg/amar_lv</pre>
+<pre>#mount /dev/amar_vg/amar_lv /amar</pre>
+<p>Changed activated in file system, check it by df –h</p>
+<pre>#df -h</pre>

@@ -1,0 +1,27 @@
+﻿<p style="text-align: center;"><strong><span style="text-decoration: underline;">Increase the size of Swap Memory</span></strong></p>
+<p>Login to system with <strong>root</strong> user<br />
+Check in your <strong>"/"</strong> filesystem that you have sufficient space. If not then extend <strong>"/"</strong> file system</p>
+<pre>#lvextend -L+2G /dev/mapper/root-lv
+#xfs_growfs /</pre>
+<p>Now Adding<strong> 2 GD</strong> more swap memory of system.<br />
+<strong>2 GB = 1024*2048MB = 2097152 KB</strong><br />
+Use <strong>dd</strong> command to create <strong>swapfile</strong></p>
+<pre>dd if=/dev/zero of=/swapfile1 bs=1024 count=2097152</pre>
+<p>Where,<br />
+if=/dev/zero : Read from /dev/zero file. /dev/zero is a special file in that provides as many null characters to build storage file called /swapfile1.<br />
+of=/swapfile1 : Read from /dev/zero write stoage file to /swapfile1.<br />
+bs=1024 : Read and write 1024 BYTES bytes at a time.<br />
+count=2097152 : Copy only 2097152 (2 GB) BLOCKS input blocks.</p>
+<p>Set Up a Linux Swap Area</p>
+<pre>mkswap /swapfile1</pre>
+<p>Set the ownership of <strong>/swapfile1</strong> to <strong>root:root</strong> and permission<strong> 0600</strong></p>
+<pre># chown root:root /swapfile1
+# chmod 0600 /swapfile1</pre>
+<p>Now activate this Swap partition with<strong> swapon</strong> command</p>
+<pre># swapon /swapfile1</pre>
+<p>Now add entry for new swap area in <strong>/etc/fstab</strong> file, so that its autometically activated during system reboot.</p>
+<pre># vi /etc/fstab
+/swapfile1 swap swap defaults 0 0
+#mount -a</pre>
+<p>Now check the swap memory status</p>
+<pre>#free -m</pre>

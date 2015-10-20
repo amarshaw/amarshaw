@@ -1,0 +1,58 @@
+<p>Configuring MongoDB replication Set</p>
+<p>Steps :-</p>
+<p>1> Create key file.</p>
+<pre>
+openssl rand -base64 753 > repkey.txt
+</pre>
+<p>2> Add entries in /etc/mongod.conf</p>
+<pre>
+logpath=/opt/mongo/current/logs/mongod.log
+logappend=true
+port = 27017
+dbpath=/opt/mongo/current/db
+pidfilepath = /opt/mongo/current/mongod.pid
+rest = true
+replSet = rs1
+fork = true
+keyFile = /opt/mongo/current/repkey.key
+</pre>
+<p>3> Open a mongo shell connected to this host:<br />
+mongo<br />
+Use rs.initiate() to initiate a replica set consisting of the current member and using the default configuration:<br />
+rs.initiate()<br />
+Display the current replica configuration:<br />
+rs.conf()<br />
+Add two members to the replica set by issuing a sequence of commands similar to the following:<br />
+rs.add("mongodb1.amarshaw.com")<br />
+rs.add("mongodb2.amarshaw.com")</p>
+<p>After these commands return you have a fully functional replica set. New replica sets elect a primary within a few seconds.<br />
+Check the status of your replica set at any time with the rs.status() operation.</p>
+<pre>
+#mongo
+> rs.initiate()
+> rs.conf()
+> rs.add("mongodb1.amarshaw.com")
+> rs.add("mongodb2.amarshaw.com")
+> rs.status()
+</pre>
+<p>4) Installing an arbiter DB</p>
+<p>Arbiters are mongod instances that are part of replica set but do not hold data. Arbiters participate in elections in order to break ties. If a replica set has an even number of members, add an arbiter.</p>
+<p>Arbiters have minimal resource requirements and do not require dedicated hardware. You can deploy an arbiter on an application server, monitoring host.</p>
+<p>ADD AN ARBITER<br />
+Steps : -<br />
+1> Create a data directory (e.g. dbpath) for the arbiter. The mongod instance uses the directory for configuration data. The directory will not hold the data set. For example, create the /opt/mongo/current/arb directory:</p>
+<pre>
+mkdir -p /opt/mongo/current/arb
+</pre>
+<p>3> Start the arbiter. Specify the data directory, the replica set name and the key file path.<br />
+dbpath = /opt/mongo/current/arb<br />
+replica set name = rs1<br />
+keyfile path = /opt/mongo/current/repkey.key</p>
+<pre> 
+mongod --port 3000 --dbpath /opt/mongo/current/arb --replSet rs1 --KeyFile /opt/mongo/current/repkey.key
+</pre>
+<p>3> Now Connect to the primary and add the arbiter to the replica set. Use the rs.addArb() method, as in the following example:</p>
+<pre>
+rs.addArb("arb1.amarshaw.com:3000")
+</pre>
+<p>This operation adds the arbiter running on port 3000 on the arb1.amarshaw.com host.</p>

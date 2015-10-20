@@ -1,0 +1,228 @@
+﻿
+<pre>typeset -i temp0 temp1 temp2 temp3
+
+#while [ 0 ];
+
+while true;
+
+do
+
+###############################################
+
+free -m &gt; freelog
+
+mpstat -P ALL &gt; mpstat
+
+process=`ps aux|grep -v ps|grep -v grep|wc -l`
+
+loadavg=`sed 's/\..*//' /proc/loadavg`
+
+#swap=`cat freelog |grep Swap | awk  '{printf $3}'`
+
+swap=`free |grep Swap | awk  '{print $3}'`
+
+mem=`cat freelog |grep Mem | awk  '{printf $3}'`
+
+mem1=`cat freelog |grep Mem | awk  '{printf $4}'`
+
+cpuall=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPUall | awk '{print $2}'`
+
+cpu0=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU0 | awk '{print $2}'`
+
+cpu1=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU1 | awk '{print $2}'`
+
+cpu2=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU2 | awk '{print $2}'`
+
+cpu3=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU3 | awk '{print $2}'`
+
+cpu4=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU4 | awk '{print $2}'`
+
+cpu5=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU5 | awk '{print $2}'`
+
+cpu6=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU6 | awk '{print $2}'`
+
+cpu7=`cat mpstat | awk '{print "CPU"$3 "  " $10}' | grep CPU7 | awk '{print $2}'`
+
+########################################
+
+tempall=${cpuall%.*}
+
+temp0=${cpu0%.*}
+
+temp1=${cpu1%.*}
+
+temp2=${cpu2%.*}
+
+temp3=${cpu3%.*}
+
+temp4=${cpu4%.*}
+
+temp5=${cpu5%.*}
+
+temp6=${cpu6%.*}
+
+temp7=${cpu7%.*}
+
+####################################
+
+echo -e "OTS Backend 1 ==&gt; Health Check Report \n"
+
+#####################################
+
+if [ $tempall -lt 95 ]
+
+then
+
+echo -e "Total CPU IDLE Reduced up to $tempall %"
+
+fi
+
+if [ $temp0 -lt 95 ]
+
+then
+
+echo -e "CPU0 IDLE Reduced up to $temp0 %  "
+
+fi
+
+if [ $temp1 -lt 95 ]
+
+then
+
+echo -e "CPU1 IDLE Reduced up to $temp1 %  "
+
+fi
+
+if [ $temp2 -lt 95 ]
+
+then
+
+echo -e "CPU2 IDLE Reduced up to $temp2 %  "
+
+fi
+
+if [ $temp3 -lt 95 ]
+
+then
+
+echo -e "CPU3 IDLE Reduced up to $temp3 %  "
+
+fi
+
+if [ $temp4 -lt 95 ]
+
+then
+
+echo -e "CPU4 IDLE Reduced up to $temp3 %  "
+
+fi
+
+if [ $temp5 -lt 95 ]
+
+then
+
+echo -e "CPU5 IDLE Reduced up to $temp3 %  "
+
+fi
+
+if [ $temp6 -lt 95 ]
+
+then
+
+echo -e "CPU6 IDLE Reduced up to $temp3 %  "
+
+fi
+
+if [ $temp7 -lt 95 ]
+
+then
+
+echo -e "CPU7 IDLE Reduced up to $temp3 %  "
+
+fi
+
+##########################
+
+if [ $process -gt 250 ]
+
+then
+
+echo  -e "Running  Processes are  increasing $process  "
+
+fi
+
+##############################
+
+if [ $loadavg -gt 1 ]
+
+then
+
+echo -e "Load Average is increasing $loadavg  "
+
+fi
+
+################################
+
+if [ $swap -gt 250 ]
+
+then
+
+echo -e "<pre wp-pre-tag-0></pre>33[33mSwap uses increasing $swap KB<pre wp-pre-tag-0></pre>33[0m"
+
+fi
+
+###############################################
+
+if [ $mem1 -lt 1024 ]
+
+then
+
+echo -e "Available Memory Goes Down $mem1 MB "
+
+echo -e "Memory Uses Increased $mem MB"
+
+fi
+
+######################################
+
+#####Mount Point Chech##############
+
+#echo -e ""        
+
+mount_points=" / /boot /tmp /usr /var /FNO /BSE /MOCK /Oracle /NSE "
+
+for ii in $mount_points; do
+
+   aa=`df -k $mount_points|grep $ii`
+
+   echo -e $aa | awk '{print $5 }' &gt; bb
+
+   b=`cut -c 1-2 bb`
+
+   c=`cut -c 3 bb`
+
+   if [ "$c" = "%" ]; then
+
+      if [ $b -gt 70 ]; then
+
+echo -e "<pre wp-pre-tag-0></pre>07 Disk Usage is greater than 70% in $ii: $b %"
+
+     fi
+
+  fi
+
+########Mount Point Chech#######
+
+done;
+
+echo "*********************************************"
+
+date
+
+echo "OTS Backend 1====&gt; Running Fine"
+
+echo "*********************************************"
+
+sleep 60
+
+done</pre>

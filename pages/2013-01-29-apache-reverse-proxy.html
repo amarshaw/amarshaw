@@ -1,0 +1,22 @@
+
+<pre>
+LoadModule proxy_module /usr/lib64/apache2-prefork/mod_proxy.so
+LoadModule proxy_http_module /usr/lib64/apache2-prefork/mod_proxy_http.so
+
+#BrowserMatch "MSIE" force-no-vary
+#SetOutputFilter DEFLATE
+# Netscape 4.x has some problems...
+#BrowserMatch ^Mozilla/4 gzip-only-text/html
+# Netscape 4.06-4.08 have some more problems
+#BrowserMatch ^Mozilla/4\.0[678] no-gzip
+# MSIE masquerades as Netscape, but it is fine
+#BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+# Make sure proxies don't deliver the wrong content
+
+
+< VirtualHost *:80 >
+ProxyRequests Off
+ProxyPass / http://localhost:8080/
+ProxyPassReverse / http://localhost:8080/
+< /VirtualHost >
+</pre>

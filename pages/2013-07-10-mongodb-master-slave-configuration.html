@@ -1,0 +1,29 @@
+
+<p>Steps :- </p>
+<p>1> Create key file.</p>
+<p>openssl rand -base64 753 > repkey.txt</p>
+<p>2> Add entries in /etc/mongod.conf on Master Server.</p>
+<pre>
+logpath=/opt/mongo/current/logs/mongod.log
+logappend=true
+fork = true
+port = 27017
+dbpath=/opt/mongo/current/db
+pidfilepath = /opt/mongo/current/mongod.pid
+keyFile = /opt/mongo/repkey.txt
+master = true
+source = mongodb1
+</pre>
+<p>3> Add entries in /etc/mongod.conf on Slave Server.</p>
+<pre>
+logpath=/opt/mongo/current/logs/mongod.log
+logappend=true
+fork = true
+port = 27017
+dbpath=/opt/mongo/current/db
+pidfilepath = /opt/mongo/current/mongod.pid
+keyFile = /opt/mongo/repkey.txt
+slave = true
+source = mongodb1
+</pre>
+<p>Now restart Mongodb</p>

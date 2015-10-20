@@ -1,0 +1,251 @@
+<p style="text-align: center;" align="center"><strong><span style="text-decoration: underline;">Apache performance tuning tips</span></strong></p>
+<p><strong>Apache server performance</strong></p>
+<p>Apache server performance can be improved by adding additional hardware resources such as RAM, faster CPU etc. But, most of the time, the same result can be achieved by custom configuration of the server. This article looks into getting maximum performance out of Apache with the existing hardware resources, specifically on the Linux systems. Of course, it is assumed that there is enough hardware resources, especially enough RAM that the server isn't swapping frequently. First two sections look into various Compile-Time and Run-Time configuration options. Run-Time section assumes that Apache is compiled with prefork MPM. HTTP compression and caching is discussed next. Finally, using separate servers for serving static and dynamic contents are being discussed. Basic knowledge of compiling and configuring Apache, and Linux are assumed.</p>
+<p><strong>Compile-Time Configuration Options </strong></p>
+<p>Load only the required modules</p>
+<p>The Apache HTTP Server is a modular program where the administrator can choose the functionality to include in the server by selecting a set of modules. The modules can be either statically compiled to the httpd binary or else can be compiled as Dynamic Shared Objects (DSOs). DSO modules can be either compiled when the server is built or else can use the apxs utility to compile and add at a later date. The module mod_so must be statically compiled into the Apache core to enable DSO support.<br />
+Run apache with only the required modules. This reduces the memory footprint and hence the server performance. Statically compiling modules will save RAM that's used for supporting dynamically loaded modules, but one has to recompile Apache whenever a module is to be added or dropped. This is where the DSO mechanism comes handy. Once the mod_so module is statically compiled, any other module can be added or dropped using the LoadModule command in httpd.conf file - of course, you will have to compile the modules using apxs if it wasn't compiled when the server was built.</p>
+<p><strong>Choose appropriate MPM</strong></p>
+<p>Apache server ships with a selection of Multi-Processing Modules (MPMs) which are responsible for binding to network ports on the machine, accepting requests, and dispatching children to handle the requests. Only one MPM can be loaded into the server at any time.</p>
+<p>Choosing an MPM depends on various factors such as whether the OS supports threads, how much memory is available, scalability versus stability, whether non-thread-safe third-party modules are used, etc.. Linux systems can choose to use a threaded MPM like worker or a non-threaded MPM like prefork:</p>
+<p>Worker MPM uses multiple child processes. It's multi-threaded within each child and each thread handles a single connection. Worker is fast and highly scalable and the memory footprint is comparatively low. It's well suited for multiple processors. On the other hand, worker is less tolerant to faulty modules and faulty threads can affect all the threads in a child process.</p>
+<p>Prefork MPM uses multiple child processes, each child handles one connection at a time. Prefork is well suited for single or double CPU systems, speed is comparable to that of worker and it's highly tolerant to faulty modules and crashing children. But the memory usage is high, more traffic leads to more memory usage.</p>
+<p><strong>Run-Time Configuration Options<br />
+</strong><br />
+DNS lookup</p>
+<p>The HostnameLookups directive enables DNS lookup so that hostnames can be logged instead of the IP address. This adds latency to every request since the DNS lookup has to be completed before the request is finished. HostnameLookups is Off by default in Apache 1.3 and above. Leave it Off and use post-processing program such as logresolve to resolve IP addresses in Apache's access logfiles. Logresolve ships with Apache.</p>
+<p>When using Allow from or Deny from directives, use IP address instead of a domain name or a hostname. Otherwise a double DNS lookup is performed to make sure that the domain name or the hostname is not being spoofed.</p>
+<p>AllowOverride</p>
+<p>If AllowOverride is not set to 'None', then Apache will attempt to open .htaccess file (as specified by AccessFileName directive) in each directory that it visits. For example: DocumentRoot /var/www/html &lt;Directory /&gt; AllowOverride all &lt;/Directory&gt;If a request is made for URI /index.html, then Apache will attempt to open /.htaccess, /var/.htaccess, /var/www/.htaccess, and /var/www/html/.htaccess. These additional file system lookups add to the latency. If .htaccess is required for a particular directory, then enable it for that directory alone.</p>
+<p>FollowSymLinks and SymLinksIfOwnerMatch</p>
+<p>If FollowSymLinks option is set, then the server will follow symbolic links in this directory. If SymLinksIfOwnerMatch is set, then the server will follow symbolic links only if the target file or directory is owned by the same user as the link.<br />
+If SymLinksIfOwnerMatch is set, then Apache will have to issue additional system calls to verify whether the ownership of the link and the target file match. Additional system calls are also needed when FollowSymLinks is NOT set. For example:</p>
+<p>DocumentRoot /vaw/www/html &lt;Directory /&gt; Options SymLinksIfOwnerMatch &lt;/Directory&gt; For a request made for URI /index.html, Apache will perform lstat() on /var, /var/www, /var/www/html, and /var/www/html/index.html. These additional system calls will add to the latency. The lstat results are not cached, so they will occur on every request.<br />
+For maximum performance, set FollowSymLinks everywhere and never set SymLinksIfOwnerMatch. Or else, if SymLinksIfOwnerMatch is required for a directory, then set it for that directory alone.</p>
+<p>Content Negotiation</p>
+<p>Avoid content negotiation for fast response. If content negotiation is required for the site, use type-map files rather than Options MultiViews directive. With MultiViews, Apache has to scan the directory for files, which add to the latency.</p>
+<p>MaxClients</p>
+<p>The MaxClients sets the limit on maximum simultaneous requests that can be supported by the server. No more than this much number of child processes are spawned. It shouldn't be set too low such that new connections are put in queue, which eventually time-out and the server resources are left unused. Setting this too high will cause the server to start swapping and the response time will degrade drastically. Appropriate value for MaxClients can be calculated as: MaxClients = Total RAM dedicated to the web server / Max child process size Child process size for serving static file is about 2-3M. For dynamic content such as PHP, it may be around 15M. The RSS column in "ps -ylC httpd --sort:rss"shows non-swapped physical memory usage by Apache processes in kilo Bytes. The <code>MaxClients</code> directive limits the number of clients that can simultaneously connect to your web server, and thus the number of httpd processes</p>
+<p>If there are more concurrent users than MaxClients, the requests will be queued up to a number based on ListenBacklog directive. Increase ServerLimit to set MaxClients above 256.</p>
+<p>MinSpareServers, MaxSpareServers, and StartServers</p>
+<p>MaxSpareServers and MinSpareServers determine how many child processes to keep while waiting for requests. If the MinSpareServers is too low and a bunch of requests come in, then Apache will have to spawn additional child processes to serve the requests. Creating child processes is relatively expensive. If the server is busy creating child processes, it won't be able to serve the client requests immediately. MaxSpareServers shouldn't be set too high, it can cause resource problems since the child processes consume resources.</p>
+<p>Tune MinSpareServers and MaxSpareServers such that Apache need not frequently spwan more than 4 child processes per second (Apache can spwan a maximum of 32 child processes per second). When more than 4 children are spawned per second, a message will be logged in the ErrorLog.</p>
+<p>The StartServers directive sets the number of child server processes created on startup. Apache will continue creating child process until the MinSpareServers setting is reached. Doesn't have much effect on performance if the server isn't restarted frequently. If there are lot of requests and Apache is restarted frequently, set this to a relatively high value.</p>
+<p>MaxRequestsPerChild</p>
+<p>The MaxRequestsPerChild directive sets the limit on the number of requests that an individual child server process will handle. After MaxRequestsPerChild requests, the child process will die. It's set to 0 by default, that means the child process will never expire. It is appropriate to set this to a value of few thousands. This can help prevent memory leakage since the process dies after serving a certain number of requests. Do not set this too low, since creating new processes does have overhead.</p>
+<p>KeepAlive and KeepAliveTimeout</p>
+<p>The KeepAlive directive allows multiple requests to be sent over the same TCP connection. This is particularly useful while serving HTML pages with lot of images. If KeepAlive is set to Off, then for each images, a separate TCP connection has to be made. Overhead due to establishing TCP connection can be eliminated by turning On KeepAlive.</p>
+<p>KeepAliveTimeout determines how long to wait for the next request. Set this to a low value, perhaps between two to five seconds. If it is set too high, child processed are tied up waiting for the client when they could be used for serving new clients.</p>
+<p><strong>HTTP Compression &amp; Caching<br />
+</strong><br />
+HTTP compression is completely specified in HTTP/1.1. The server uses gzip or deflate encoding method to the response payload before it is sent to the client. Client then decompresses the payload. There is no need to install any additional software at the client side since all major browsers support this. Using compression will save bandwidth and improve response time, studies have found a mean compression gain of 75.2 % . HTTP Compression can be enabled in Apache using mod_deflate module. Payload is compressed only if the browser requests compression, otherwise uncompressed content is served. A compression aware browser inform the server that it prefers compressed content through the HTTP request header - "Accept-Encoding: gzip,deflate". Then the server responds with compressed payload and the response header set to "Content-Encoding:gzip</p>
+<p><strong>Separate server for static and dynamic content </strong></p>
+<p>Apache processes serving dynamic content takes about 3M to 20M of RAM. It grows to accommodate the content it's serving and never decreases until the process dies. Say an Apache process grows to 20M to serve a dynamic content. After completing the request, it is free to serve any other request. If a request for an image comes in, then this 20M process is serving a static content which could as well be served by a 1M process. Memory is used inefficiently.</p>
+<p>Use a tiny Apache (with minimum modules statically compiled) as the front-end server to serve static contents. Request for dynamic contents are forwarded to the heavy Apache (compiled with all required modules). Using a light front-end server has the advantage that the static contents are served fast without much memory usage and only the dynamic contents are passed over to the heavy server.</p>
+<p>Request forwarding can be achieved by using mod_proxy and rewrite_module modules. Suppose there is a lightweight Apache server listening to port 80 and the heavyweight Apache listening on port 8088. Then the following configuration in the lightweight Apache can be used to forward all request except request for images to the heavyweight server.</p>
+<p>ProxyPassReverse / http://%{HTTP_HOST}:8088/<br />
+RewriteEngine on<br />
+RewriteCond %{REQUEST_URI} !.*\.(gif|png|jpg)$<br />
+RewriteRule ^/(.*) http://%{HTTP_HOST}:8088/$1 [P]</p>
+<p>All requests, except for images, are proxied to the backend server. Response is received by the frontend server and then supplied to the client. As far as client is concerned, all the response seem to come from a single server.</p>
+<p><strong>Reducing network load</strong></p>
+<p>The following three modules can be used to reduce the network load generated by Apache. Of these, only mod_gzip will have any effect if the bandwidth bottleneck is outside of your control, like the user's modem connection.</p>
+<p>mod_gzip</p>
+<p>The mod_gzip module attempts to reduce bandwidth use by compressing data that is being sent out. If the browser claims to accept 'gzip' encoding, files can get compressed using the Lempel-Ziv coding (LZ77), the same algorithm used by the UNIX 'gzip' command. This compression comes at a cost of processing time on both the server and the client, however. The modules allows specifying which files are eligible for compression, so that files that are already (partially) compressed, and which would have little to gain by compression (like .gz files, .jpeg files, etc.) can be skipped.</p>
+<p>The module is especially effective when using it to compress text-files (and thus HTML files) which are easily compressible. The mod_gzip module and the accompanying documentation can be found at http://www.remotecommunications.com/apache/mod_gzip/.</p>
+<p>In Apache 2.0, mod_gzip's functionality is replaced by a new standard module, mod_deflate, which is documented in the standard documentation.</p>
+<p>&nbsp;</p>
+<h2>SSL Session Caching</h2>
+<p>The Oracle HTTP server caches a client's SSL session information by default. With session caching, only the first connection to the server incurs high latency. For example, in a simple test to connect and disconnect to an SSL-enabled server, the elapsed time for 5 connections was 11.4 seconds without SSL session caching. With SSL session caching enabled, the elapsed time for 5 round trips was 1.9 seconds.</p>
+<p>The <code>SSLSessionCacheTimeout</code> directive in <strong>httpd.conf</strong> determines how long the server keeps a session alive (the default is 300 seconds). The session information is kept in a file. You can specify where to keep the session information using the <code>SSLSessionCache</code> directive; the default location is the <strong>$ORACLE_HOME/Apache/Apache/logs/</strong> directory. The file can be used by multiple Oracle HTTP Server processes.</p>
+<p>The duration of an SSL session is unrelated to the use of HTTP persistent connections.</p>
+<h2>HTTP/1.1</h2>
+<p>The Oracle HTTP server can use HTTP/1.1. Netscape Navigator 4.0 still uses HTTP/1.0, with some 1.1 features, such as persistent connections. Internet Explorer uses HTTP/1.1. The performance benefit of persistent connections comes from reducing the overhead of repeatedly establishing and tearing down connections (one per request). A persistent connection accepts multiple requests from a user.</p>
+<p>For a small static page request, the connection latency can equal or exceed the response latency (the time to fulfill the request after the connection is established), so using persistent connections can result in major performance gains.</p>
+<p>For more information about performance and the HTTP/1.1 protocol, see:</p>
+<p>http://www.w3.org/Protocols/HTTP/Performance/Pipeline.html</p>
+<h3>Persistent Connections</h3>
+<p>If your users' browsers support persistent connections (the default behavior of HTTP/1.1), you can support them on the server using the <code>KeepAlive</code> directives in Apache. (Some browsers that do not support all HTTP/1.1 features do support persistent connections; for example, recent versions of Netscape.)</p>
+<h4>Shorter Response Times</h4>
+<p>Persistent connections can improve total response time for a web interaction that involves multiple HTTP requests, because the delay of setting up a connection only happens once.</p>
+<p>Consider the total time required, without persistent connections, for a client to retrieve a web page with three images from the server.</p>
+<table width="100%" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top"><strong>Activity</strong></td>
+<td valign="top"><strong>Seconds</strong></td>
+</tr>
+<tr>
+<td valign="top">Establish connection</td>
+<td valign="top">1</td>
+</tr>
+<tr>
+<td valign="top">Produce and send the text portion of the page</td>
+<td valign="top">5</td>
+</tr>
+<tr>
+<td valign="top">Establish connection</td>
+<td valign="top">1</td>
+</tr>
+<tr>
+<td valign="top">Transfer first image file</td>
+<td valign="top">2</td>
+</tr>
+<tr>
+<td valign="top">Establish connection</td>
+<td valign="top">1</td>
+</tr>
+<tr>
+<td valign="top">Transfer second image file</td>
+<td valign="top">2</td>
+</tr>
+<tr>
+<td valign="top">Establish connection</td>
+<td valign="top">1</td>
+</tr>
+<tr>
+<td valign="top">Transfer third image file</td>
+<td valign="top">2</td>
+</tr>
+<tr>
+<td valign="top"><strong>Total</strong></td>
+<td valign="top">15</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top"></td>
+</tr>
+</tbody>
+</table>
+<p>With persistent connections, the response time for the same request is reduced:</p>
+<table width="100%" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top"><strong>Activity</strong></td>
+<td valign="top"><strong>Seconds</strong></td>
+</tr>
+<tr>
+<td valign="top">Establish connection</td>
+<td valign="top">1</td>
+</tr>
+<tr>
+<td valign="top">Produce and send the text portion of the page</td>
+<td valign="top">5</td>
+</tr>
+<tr>
+<td valign="top">Transfer first image file</td>
+<td valign="top">2</td>
+</tr>
+<tr>
+<td valign="top">Transfer second image file</td>
+<td valign="top">2</td>
+</tr>
+<tr>
+<td valign="top">Transfer third image file</td>
+<td valign="top">2</td>
+</tr>
+<tr>
+<td valign="top"><strong>Total</strong></td>
+<td valign="top">12</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top"></td>
+</tr>
+</tbody>
+</table>
+<p>This is a 20% reduction in service time. When the system is under load, the benefit of reducing connection time with persistent connections is even greater, due to the corresponding reduction of the TCP queue.</p>
+<h4>Reduction in Server Workload</h4>
+<p>Another benefit of persistent connections is reduction of the work load on the server. Because the server need not repeat the work to set up the connection with a client, it is free to perform other work. For a very inexpensive servlet (Hello World), the CPU ms per request was reduced by approximately 10% when the same client made 4 requests per connection. (The impact would be far less significant for a realistic servlet application that does more work.)</p>
+<h4>httpd Process Availability</h4>
+<p>There are some serious drawbacks to using persistent connections with Apache. In particular, because httpd processes are single threaded, one client can keep a process tied up for a significant period of time (the amount of time depends on your <code>KeepAlive</code> settings). If you have a large user population, and you set your <code>KeepAlive</code> limits too high, clients could be turned away because of insufficient httpd deamons.</p>
+<p>The default settings for the <code>KeepAlive</code> directives are:</p>
+<pre>KeepAlive on</pre>
+<pre>MaxKeepAliveRequests 100</pre>
+<pre>KeepAliveTimeOut 15</pre>
+<pre></pre>
+<p>These settings allow enough requests per connection and time between requests to reap the benefits of the persistent connections, while minimizing the drawbacks. You should consider the size and behavior of your own user population in setting these values on your system. For example, if you have a large user population and the users make small infrequent requests, you may want to reduce the above settings, or even set <code>KeepAlive</code> to off. If you have a small population of users that return to your site frequently, you may want to increase the settings.</p>
+<p><strong>Questions</strong></p>
+<p><strong>Q.1 why name based virtual hosting cant be used if we are hosting website associated with a particular IP with SSL support?</strong></p>
+<p><strong>A.1 </strong>The reason is very technical, and a somewhat "chicken and egg" problem. The SSL protocol layer stays below the HTTP protocol layer and encapsulates HTTP. When an SSL connection (HTTPS) is established Apache/mod_ssl has to negotiate the SSL protocol parameters with the client. For this, mod_ssl has to consult the configuration of the virtual server (for instance it has to look for the cipher suite, the server certificate, etc.). But in order to go to the correct virtual server Apache has to know the Host HTTP header field. To do this, the HTTP request header has to be read. This cannot be done before the SSL handshake is finished, but the information is needed in order to complete the SSL handshake phase. Bingo.</p>
+<p>A.2 Name-Based Virtual Hosting is a very popular method of identifying different virtual hosts. It allows you to use the same IP address and the same port number for many different sites. When people move on to SSL, it seems natural to assume that the same method can be used to have lots of different SSL virtual hosts on the same server.</p>
+<p>It comes as rather a shock to learn that it is impossible.</p>
+<p>The reason is that the SSL protocol is a separate layer which encapsulates the HTTP protocol. So the SSL session is a separate transaction, that takes place before the HTTP session has begun. The server receives an SSL request on IP address X and port Y (usually 443). Since the SSL request does not contain any Host: field, the server has no way to decide which SSL virtual host to use. Usually, it will just use the first one it finds, which matches the port and IP address specified.</p>
+<p>You can, of course, use Name-Based Virtual Hosting to identify many non-SSL virtual hosts (all on port 80, for example) and then have a single SSL virtual host (on port 443). But if you do this, you must make sure to put the non-SSL port number on the NameVirtualHost directive, e.g.</p>
+<p>NameVirtualHost 192.168.1.1:80</p>
+<p>Other workaround solutions include:</p>
+<p>Using separate IP addresses for different SSL hosts. Using different port numbers for different SSL hosts</p>
+<h3>Why do I get lots of random SSL protocol errors under heavy server load?</h3>
+<p>There can be a number of reasons for this, but the main one is problems with the SSL session Cache specified by the <code><a href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#sslsessioncache">SSLSessionCache</a></code> directive. The DBM session cache is the most likely source of the problem, so using the SHM session cache (or no cache at all) may help.</p>
+<h3>Why does my webserver have a higher load, now that it serves SSL encrypted traffic?</h3>
+<p>SSL uses strong cryptographic encryption, which necessitates a lot of number crunching. When you request a webpage via HTTPS, everything (even the images) is encrypted before it is transferred. So increased HTTPS traffic leads to load increases.</p>
+<h3>Why do HTTPS connections to my server sometimes take up to 30 seconds to establish a connection?</h3>
+<p>This is usually caused by a <code>/dev/random</code> device for <code><a href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#sslrandomseed">SSLRandomSeed</a></code> which blocks the read(2) call until enough entropy is available to service the request. More information is available in the reference manual for the <code><a href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#sslrandomseed">SSLRandomSeed</a></code> directive.</p>
+<h3>Why does mod_ssl stop with the error "Failed to generate temporary 512 bit RSA private key" when I start Apache?</h3>
+<p>Cryptographic software needs a source of unpredictable data to work correctly. Many open source operating systems provide a "randomness device" that serves this purpose (usually named <code>/dev/random</code>). On other systems, applications have to seed the OpenSSL Pseudo Random Number Generator (PRNG) manually with appropriate data before generating keys or performing public key encryption. As of version 0.9.5, the OpenSSL functions that need randomness report an error if the PRNG has not been seeded with at least 128 bits of randomness.</p>
+<p>To prevent this error, <code><a href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html">mod_ssl</a></code> has to provide enough entropy to the PRNG to allow it to work correctly. This can be done via the <code><a href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#sslrandomseed">SSLRandomSeed</a></code> directive.</p>
+<p><strong>SSLRandomSeed Directive</strong><strong></strong></p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" nowrap="nowrap"><strong><a href="http://httpd.apache.org/docs/2.0/mod/directive-dict.html#Description">Description:</a></strong></td>
+<td valign="top">Pseudo Random Number Generator (PRNG) seeding source</td>
+</tr>
+<tr>
+<td valign="top" nowrap="nowrap"><strong><a href="http://httpd.apache.org/docs/2.0/mod/directive-dict.html#Syntax">Syntax:</a></strong></td>
+<td valign="top">SSLRandomSeed <em>context</em> <em>source</em> [<em>bytes</em>]</td>
+</tr>
+<tr>
+<td valign="top" nowrap="nowrap"><strong><a href="http://httpd.apache.org/docs/2.0/mod/directive-dict.html#Context">Context:</a></strong></td>
+<td valign="top">server config</td>
+</tr>
+<tr>
+<td valign="top" nowrap="nowrap"><strong><a href="http://httpd.apache.org/docs/2.0/mod/directive-dict.html#Status">Status:</a></strong></td>
+<td valign="top">Extension</td>
+</tr>
+<tr>
+<td valign="top" nowrap="nowrap"><strong><a href="http://httpd.apache.org/docs/2.0/mod/directive-dict.html#Module">Module:</a></strong></td>
+<td valign="top">mod_ssl</td>
+</tr>
+</tbody>
+</table>
+<p>This configures one or more sources for seeding the Pseudo Random Number Generator (PRNG) in OpenSSL at startup time (<em>context</em> is startup) and/or just before a new SSL connection is established (<em>context</em> is connect). This directive can only be used in the global server context because the PRNG is a global facility.</p>
+<p>The following <em>source</em> variants are available:</p>
+<ul>
+<li>builtin</li>
+</ul>
+<p>This is the always available builtin seeding source. It's usage consumes minimum CPU cycles under runtime and hence can be always used without drawbacks. The source used for seeding the PRNG contains of the current time, the current process id and (when applicable) a randomly choosen 1KB extract of the inter-process scoreboard structure of Apache. The drawback is that this is not really a strong source and at startup time (where the scoreboard is still not available) this source just produces a few bytes of entropy. So you should always, at least for the startup, use an additional seeding source.</p>
+<ul>
+<li>file:/path/to/source</li>
+</ul>
+<p>This variant uses an external file /path/to/source as the source for seeding the PRNG. When <em>bytes</em> is specified, only the first <em>bytes</em> number of bytes of the file form the entropy (and <em>bytes</em> is given to /path/to/source as the first argument). When <em>bytes</em> is not specified the whole file forms the entropy (and 0 is given to /path/to/source as the first argument). Use this especially at startup time, for instance with an available /dev/random and/or /dev/urandom devices (which usually exist on modern Unix derivates like FreeBSD and Linux).</p>
+<p><em>But be careful</em>: Usually /dev/random provides only as much entropy data as it actually has, i.e. when you request 512 bytes of entropy, but the device currently has only 100 bytes available two things can happen: On some platforms you receive only the 100 bytes while on other platforms the read blocks until enough bytes are available (which can take a long time). Here using an existing /dev/urandom is better, because it never blocks and actually gives the amount of requested data. The drawback is just that the quality of the received data may not be the best.</p>
+<p>On some platforms like FreeBSD one can even control how the entropy is actually generated, i.e. by which system interrupts. More details one can find under <em>rndcontrol(8)</em> on those platforms. Alternatively, when your system lacks such a random device, you can use tool like <a href="http://www.lothar.com/tech/crypto/">EGD</a> (Entropy Gathering Daemon) and run it's client program with the exec:/path/to/program/ variant (see below) or use egd:/path/to/egd-socket (see below).</p>
+<ul>
+<li>exec:/path/to/program</li>
+</ul>
+<p>This variant uses an external executable /path/to/program as the source for seeding the PRNG. When <em>bytes</em> is specified, only the first <em>bytes</em> number of bytes of its stdout contents form the entropy. When <em>bytes</em> is not specified, the entirety of the data produced on stdout form the entropy. Use this only at startup time when you need a very strong seeding with the help of an external program (for instance as in the example above with the truerand utility you can find in the mod_ssl distribution which is based on the AT&amp;T <em>truerand</em> library). Using this in the connection context slows down the server too dramatically, of course. So usually you should avoid using external programs in that context.</p>
+<ul>
+<li>egd:/path/to/egd-socket (Unix only)</li>
+</ul>
+<p>This variant uses the Unix domain socket of the external Entropy Gathering Daemon (EGD) (see <a href="http://www.lothar.com/tech/crypto/">http://www.lothar.com/tech /crypto/</a>) to seed the PRNG. Use this if no random device exists on your platform.</p>
+<p><strong>Example</strong></p>
+<p>SSLRandomSeed startup builtin<br />
+SSLRandomSeed startup file:/dev/random<br />
+SSLRandomSeed startup file:/dev/urandom 1024<br />
+SSLRandomSeed startup exec:/usr/local/bin/truerand 16<br />
+SSLRandomSeed connect builtin<br />
+SSLRandomSeed connect file:/dev/random<br />
+SSLRandomSeed connect file:/dev/urandom 1024</p>
+<p>For better understanding kindly check the links below:</p>
+<p><a href="http://httpd.apache.org/docs/2.0/ssl/ssl_faq.html">http://httpd.apache.org/docs/2.0/ssl/ssl_faq.html</a></p>
+<p><a href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html">http://httpd.apache.org/docs/2.0/mod/mod_ssl.html</a></p>
+<p>&nbsp;</p>

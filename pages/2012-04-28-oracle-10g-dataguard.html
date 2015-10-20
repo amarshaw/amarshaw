@@ -1,0 +1,243 @@
+
+<p style="text-align: center;"><span style="text-decoration: underline;"><strong>Oracle 10G Dataguard</strong></span></p>
+<p><strong>Step 1:</strong></p>
+<p>Make your Primary Database is in Archive Move.</p>
+<p>Open the pfile of your primary database and put the following entries.</p>
+<pre>log_archive_dest=/Oracle/oradata/amar/arch
+Log_Archive_Format="amar_%t_%s_%r.ARC"</pre>
+<p>%t = Thread ID<br />
+%s = Sequence Number<br />
+%r = Resetlogs id, its will same for all the archive file after the database start, it will change after database restart</p>
+<p>Now Start your database in mount stage with this modified pfile.</p>
+<pre>SQL&gt; startup mount
+SQL&gt; alter database archive log;
+SQL&gt; alter database open;
+Now switch the rodolog file and check whether your generated in the above mention destination or not.
+
+SQL&gt; alter system switch logfile;
+
+# ll /Oracle/oradata/amar/arch
+
+-rw-r----- 1 oracle oinstall    1024 Feb  3 13:10 amar_1_98_742068967.ARC
+-rw-r----- 1 oracle oinstall    1024 Feb  3 13:10 amar_1_99_742068967.ARC</pre>
+<p><strong>Step 2</strong>:</p>
+<p>Now make the folder structure of Standby database symmetrical to Primary database.<br />
+Copy the datafiles to the respective folder as symmetrical to Primary database.<br />
+Now create the control file for standby database from Primary database.<br />
+SQL&gt; alter database create standby controlfile as '/Oracle/std.ctl';<br />
+Now copy this control file to the standby database location.</p>
+<pre>#cp std.ctl /Oracle/oradata/amar1/Control/control01.ctl
+#cp std.ctl /Oracle/oradata/amar1/Control/control02.ctl
+#cp std.ctl /Oracle/oradata/amar1/Control/control03.ctl</pre>
+<p>Now Put following entries in the Primary database pfile.</p>
+<pre>#log_archive_dest=/Oracle/oradata/amar/arch
+Log_Archive_Format="amar_%t_%s_%r.ARC"
+##########################################
+fal_client='amar1'
+fal_server='amar'
+log_archive_dest_1='LOCATION=/Oracle/oradata/amar/arch'
+log_archive_dest_2='SERVICE=amar1 LGWR ASYNC'
+log_archive_dest_state_1='ENABLE'
+log_archive_dest_state_2='ENABLE'
+db_file_name_convert= '/Oracle/oradata/amar/data', '/Oracle/oradata/amar1/data'
+log_file_name_convert='/Oracle/oradata/amar/redolog', '/Oracle/oradata/amar1/redolog'
+standby_archive_dest='/Oracle/oradata/amar/arch';
+standby_file_management='AUTO'</pre>
+<p>Copy the pfile of of primary to standby database and make following changes</p>
+<pre>db_unique_name=amar1
+fal_client='amar'
+fal_server='amar1'
+log_archive_dest_1='LOCATION=/Oracle/oradata/amar1/arch'
+log_archive_dest_2='SERVICE=amar1 LGWR ASYNC'
+log_archive_dest_state_1='ENABLE'
+log_archive_dest_state_2='defer'
+db_file_name_convert= '/Oracle/oradata/amar/data', '/Oracle/oradata/amar1/data'
+log_file_name_convert='/Oracle/oradata/amar/redolog', '/Oracle/oradata/amar1/redolog'
+standby_archive_dest='/Oracle/oradata/amar1/arch';
+standby_file_management='AUTO'</pre>
+<p>Note : - db_file_name_convert and log_file_name_convert is not required if the folder structure is same. And the db_unique_name is not required if the machine is different.</p>
+<p><strong>Step 3:</strong></p>
+<p>Now Create the listener for amai1, open file from listener.ora the following location /Oracle/10g/network/admin, add following line in the listener.ora file.</p>
+<pre>SID_LIST_LISTENER1=
+  (SID_LIST =
+    (SID_DESC =
+      (GLOBAL_DBNAME = amar1)
+      (ORACLE_HOME = /Oracle/10g)
+      (SID_NAME = amar1)
+    )
+  )
+
+LISTENER1 =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = amar.com)(PORT = 1523))
+    )
+  )</pre>
+<pre>Note:- Port should me change if the machine is same.
+
+Now put TNS entry for amat1 in tnsnames.ora file. Add following in tnsnames.ora file.</pre>
+<pre>amar1 =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 172.16.34.59)(PORT = 1522))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = amar1)
+    )
+  )</pre>
+<p>Now start the LISTENER and LISTENER1.</p>
+<pre>#lsnrctl start LISTENER
+#lsnrctl start LISTENER1</pre>
+<p>Now check the status of LISTENER and LISTENER1.</p>
+<pre>#lsnrctl stat LISTENER
+#lsnrctl stat LISTENER1</pre>
+<p>Now check the TNS Ping of amar and amar1</p>
+<pre>#tnsping amar
+#tnsping amar1</pre>
+<p><strong>Step 4</strong>:</p>
+<p>Start your Primary database with now pfile;</p>
+<pre>SQL&gt; startup pfile=initamar.ora</pre>
+<p>Start your Standby database in nomount stage with pfile.</p>
+<p>Note : - If the machine is same then need to export the ORACLE_SID</p>
+<pre>#export ORACLE_SID=amar1</pre>
+<pre>SQL&gt; startup nomount pfile=initamar1.ora</pre>
+<p>Now mount your standby database.</p>
+<pre>SQL&gt;alter database mount standby database;</pre>
+<p>Now start recovery of standby database.</p>
+<pre>SQL&gt;alter database recover managed standby database disconnect from session;</pre>
+<p>Check the database name</p>
+<pre>SQL&gt; select name, open_mode from v$database;
+NAME      OPEN_MODE
+--------- ----------
+AMAR      MOUNTED
+
+Check the instance name
+SQL&gt;select instance_name from v$instance;
+INSTANCE_NAME
+----------------
+amar1</pre>
+<p><strong>Step 5:</strong></p>
+<p>Checking of standby database.</p>
+<p>Now our standby database is ready to use, we can check it by switching the log file, the archive file will automatically send to standby database.</p>
+<p><strong>In Primary</strong></p>
+<pre>SQL&gt; alter system switch logfile;
+
+System altered.
+
+SQL&gt; archive log file
+SP2-0718: illegal ARCHIVE LOG option
+SQL&gt; archive log list
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            /Oracle/oradata/amar/arch
+Oldest online log sequence     259
+Next log sequence to archive   261
+Current log sequence           262</pre>
+<p><strong>In Standby databse</strong></p>
+<pre>SQL&gt; archive log list
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            /Oracle/oradata/amar1/arch
+Oldest online log sequence     259
+Next log sequence to archive   0
+Current log sequence           262</pre>
+<p>Note : - the Current log sequence should bee same for both the database, if not then there is some problem.<br />
+Now Check the applied archive log status.</p>
+<pre>SQL&gt;select sequence#, applied from v$archived_log;
+SEQUENCE# APP
+---------- ---
+       262 YES
+
+133 rows selected.</pre>
+<p>If its YES then this sequence no log is applied if NO then not applied.<br />
+We can also manually check the archive file.<br />
+In Primary</p>
+<pre>#ll /Oracle/oradata/amar/arch</pre>
+<p><strong>In Standby databse</strong></p>
+<pre>#ll /Oracle/oradata/amar1/arch</pre>
+<p style="text-align: center;"><span style="text-decoration: underline;"><strong>Make Standby to Primary if in case of Primary Crash.</strong></span></p>
+<p><strong>Failover Mode</strong></p>
+<p>Check the switchover_status of standby database</p>
+<pre>SQL&gt;select switchover_status from v$database;
+
+SWITCHOVER_STATUS
+--------------------
+SESSIONS ACTIVE</pre>
+<p>Cancel the recovery of standby database.</p>
+<pre>SQL&gt;alter database recover managed standby database cancel;</pre>
+<p>Check the database_role of standby database</p>
+<pre>SQL&gt;select database_role from v$database;
+
+DATABASE_ROLE
+----------------
+PHYSICAL STANDBY</pre>
+<p>Make the standbydatabase Active, so that the database role change from PHYSICAL STANDBY to PRIMARY</p>
+<pre>SQL&gt; alter database activate standby database;
+
+SQL&gt; select database_role from v$database;
+
+Now again Check the database_role of standby database, this time it should be PRIMARY.
+DATABASE_ROLE
+----------------
+PRIMARY</pre>
+<p>Check the mode of database</p>
+<pre>SQL&gt; select open_mode from v$database;
+
+OPEN_MODE
+----------
+MOUNTED
+Now make the database in Open mode
+SQL&gt; alter database open;
+Database altered.</pre>
+<p>Check the mode of database</p>
+<pre>SQL&gt; select open_mode from v$database;
+
+OPEN_MODE
+----------
+READ WRITE</pre>
+<p>Check it through restarting the database.</p>
+<pre>SQL&gt;shut immediate
+SQL&gt;startup
+SQL&gt; select name, open_mode from v$database;
+NAME      OPEN_MODE
+--------- ----------
+AMAR      READ WRITE
+
+SQL&gt;select instance_name from v$instance;
+INSTANCE_NAME
+----------------
+amar1</pre>
+<p>Now your failover is complete.</p>
+<p>Note :- In failover more once we up our standby database, the Primary database will now start as standby database, for that we need to recreate the standby database.</p>
+<p style="text-align: center;"><span style="text-decoration: underline;"><strong>Switch Over Mode</strong></span></p>
+<p>In Switch over mode we can start our primary database to standby mode, are again in Primary mode as required. The switch over mode we perforce if due to any reason we required the primary database downtime, and our user don't effect with this downtime.</p>
+<p><strong>Step 1:-</strong></p>
+<p>Switch one logfile in primary</p>
+<pre>SQL&gt;alter system switch logfile;</pre>
+<p>Make user that all the archive is transfer to standby and applied on stand by,<br />
+Match the "archive log list" with primary, the "Current log sequence "should be same in both the database.</p>
+<pre>SQL&gt; archive log list
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            /Oracle/oradata/manish/arch
+Oldest online log sequence     350
+Next log sequence to archive   0
+Current log sequence           355</pre>
+<p>Check the applied log status, the APPLY status should be less then one of "Current log sequence "</p>
+<pre> SQL&gt;select sequence#, applied from v$archived_log;
+
+ SEQUENCE# APP
+---------- ---
+       353 YES
+       354 YES</pre>
+<p>Note :- Current log sequence = 355, and applied is 354, its OK</p>
+<p><strong>Step 2:</strong></p>
+<p><strong>In Primary</strong></p>
+<p><strong>Make primary databse in standby role.</strong></p>
+<pre>SQL&gt;ALTER DATABASE COMMIT TO SWITCHOVER TO PHYSICAL STANDBY WITH SESSION SHUTDOWN;</pre>
+<p><strong>In Standby</strong></p>
+<p><strong>Make standby databse in Primary role.</strong></p>
+<pre>SQL&gt;ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY WITH SESSION SHUTDOWN;</pre>
+<p>Shutdown both the database, and start the new primary database with startup option, and standby with startup nomount option.<br />
+Check the database_role, archive log list, Sequence No, applied status, as describe above.</p>
+<p>Once your database maintenance is over, do this step vice versa.</p>
+<p style="text-align: center;">******************END*****************</p>

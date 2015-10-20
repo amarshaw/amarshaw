@@ -1,0 +1,305 @@
+﻿<p style="text-align: center;"><span style="text-decoration: underline;"><strong><span style="font-family: Verdana;">MYSQL Commands</span></strong></span></p>
+<p>IMP Link :- http://www.pantz.org/software/mysql/mysqlcommands.html</p>
+<p style="text-align: left;"> user add --&gt; GRANT ALL PRIVILEGES ON databasename.* TO <a href="mailto:Username@ip">Username@ip</a> IDENTIFIED BY 'pass'</p>
+<p style="text-align: left;"> 1.    /etc/init.d/mysqld stop<br />
+2.    /usr/bin/mysqld_safe --skip-grant-tables &amp;<br />
+3.    mysql --user=root mysql<br />
+4.    mysql&gt; update user set Password=PASSWORD('new-password-here') WHERE User='root';<br />
+5.    mysql&gt; flush privileges;<br />
+6.    /etc/init.d/mysql start<br />
+7.    mysql --user=root mysql   # enter new password</p>
+<table width="907" border="0" cellspacing="0" cellpadding="0">
+<colgroup>
+<col width="49" />
+<col width="108" />
+<col width="529" />
+<col width="221" /></colgroup>
+<tbody>
+<tr>
+<td width="49" height="17"><strong><span style="font-family: Arial; font-size: x-small;">Sl. No.</span></strong></td>
+<td width="108"><strong><span style="font-family: Arial; font-size: x-small;">Command Type</span></strong></td>
+<td width="529"><strong><span style="font-family: Arial; font-size: x-small;">Command</span></strong></td>
+<td width="221"><strong><span style="font-family: Arial; font-size: x-small;">Comments</span></strong></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">1</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">list grants for user</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">show grants for amar@'localhost';</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">2</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">renaming users</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">RENAME USER ''@'localhost' TO 'user1'@'localhost'</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="85"><span style="font-family: Arial; font-size: x-small;">3</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">grant</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">grant create on amartest.* to amar@'localhost';<br />
+GRANT ALL PRIVILEGES ON *.* TO myUser@localhost IDENTIFIED BY 'pass' WITH GRANT OPTION;<br />
+GRANT USAGE ON *.* TO dummy@localhost;<br />
+<span style="color: #ff0000;"><strong>mysqladmin -u user_name -h host_name password "newpwd"</strong></span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td height="17"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Revoke</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">REVOKE ALL PRIVILEGES, GRANT OPTION FROM user [, user]<span style="color: #000000;"> </span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="85"><span style="font-family: Arial; font-size: x-small;">4</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">backup</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">mysqldump -u root -p pass21 --databases Customers Orders Comments &gt; multibackup.sql<br />
+mysqldump --all-databases&gt; alldatabases.sql<br />
+mysqldump --no-data --databases Customers Orders Comments &gt; structurebackup.sql<br />
+mysqldump --all-databases | gzip &gt;databasebackup.sql.gz<span style="color: #000000;"> </span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">5</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">restore</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">mysql -u sadmin -p pass21 Customers &lt; custback.sql<br />
+gunzip &lt; custback.sql.sql.gz | mysql -u sadmin -p pass21 Customers<span style="color: #000000;"> </span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">restore to customer database using cutback.sql</span></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">6</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">copy database to another location</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">mysqldump -u sadmin -p pass21 Customers | mysql --host=202.32.12.32 -C Customers<span style="color: #000000;"> </span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">copy database Customers to new server location 202.32.12.32</span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">7</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">add column</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">ALTER TABLE contacts ADD email VARCHAR(60);</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="51"><span style="font-family: Arial; font-size: x-small;">8</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">update log</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">enter the line <span style="color: #000000;"><span><strong>log=logfilename</strong></span><span> in </span><span><strong>/etc/my.cnf </strong></span><span>under [mysqld] block. File will be created under mysql directory and will contain all the statements in the log file. Parameter to check this is log in mysql mysql&gt; show variables like '%log%';</span></span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="51"><span style="font-family: Arial; font-size: x-small;">9</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Process list</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">enter the line <span style="color: #000000;"><span><strong>log=logfilename</strong></span><span> in </span><span><strong>/etc/my.cnf </strong></span><span>under [mysqld] block. File will be created under mysql directory and will contain all the statements in the log file. Parameter to check this is log in mysql mysql&gt; show variables like '%log%';</span></span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="102"><span style="font-family: Arial; font-size: x-small;">10</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">backup full</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">mysqldump --single-transaction --flush-logs --master-data=2 --all-databases &gt; daily_full_backup_date.sql</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">--single transaction - is for consitent read<br />
+--fulsh logs is to switch log to new logfile<br />
+--master-data=2 is for recording the switch of logfile in the dump file</span></td>
+</tr>
+<tr>
+<td align="right" height="85"><span style="font-family: Arial; font-size: x-small;">11</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">password</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">SET PASSWORD FOR ''@'localhost' = PASSWORD('newpwd');<br />
+or<br />
+update mysql.user set password =password('new password') where user='username' and host='hostname'<br />
+Flush Privileges;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="51"><span style="font-family: Arial; font-size: x-small;">12</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">start/stop</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">/etc/rc.d/init.d/mysql start<br />
+/etc/rc.d/init.d/mysql stop<br />
+/etc/rc.d/init.d/mysql restart</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">13</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">binary logs enabling</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">SET sql_log_bin=0<span style="color: #000000;"> </span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="102"><span style="font-family: Arial; font-size: x-small;">14</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">recovery binary logs</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">mysqlbinlog binlog.000001 binlog.000002 | mysql -u root -p<br />
+or<br />
+mysqlbinlog binlog.000001 &gt;<span style="color: #000000;">  </span>/tmp/statements.sql<br />
+shell&gt; mysqlbinlog binlog.000002 &gt;&gt; /tmp/statements.sql<br />
+shell&gt; mysql -u root -p -e "source /tmp/statements.sql"</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">Always apply binary logs in sequence and within one session. While using multiple sessions, if first session creates a temporary table then, the temp. table will not be available in the second sesion.</span></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">15</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Drop user</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">Drop user 'amar'@'localhost';<br />
+delete from mysql.user where user='username'; with deletion from mysql.db table</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">16</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Create user</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">create user 'vipin'@'localhost' identified by 'redhat' ;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">17</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">repair tables</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">myisamchk [options] tbl_name</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="119"><span style="font-family: Arial; font-size: x-small;">18</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Load files</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">LOAD DATA INFILE '/backup/csv/company.CSV' INTO TABLE cwi_company<br />
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY "" LINES TERMINATED BY '\r\n' IGNORE 1 LINES</p>
+<p>LOAD DATA INFILE '/backup/csv/company.CSV' <span style="color: #000000;"><strong>REPLACE</strong></span></span></span><span style="font-family: Arial; color: #000000; font-size: x-small;"> INTO TABLE cwi_company<br />
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">first command insert and if rows exists an error is shown. To replace the existing one (primary key) and adding the others use the REPLACE keyword (2nd command).</span></td>
+</tr>
+<tr>
+<td align="right" height="119"><span style="font-family: Arial; font-size: x-small;">19</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">imcomplete recovery</span></td>
+<td width="529"><span style="font-size: x-small;"><span style="font-family: Arial;">mysqlbinlog --stop-date="2005-04-20 9:59:59"<span style="color: #000000;">  /var/log/mysql/bin.123456 |</span><span style="color: #000000;">  mysql -u root -pmypwd</span></span></span><span style="font-size: x-small;"><span style="font-family: Arial;"><span style="color: #000000;">  --socket=/tmp/mysql_restore.sock</p>
+<p>until position (you can get position by reading the log file with text editor)</p>
+<p>mysqlbinlog --stop-position="368312" /var/log/mysql/bin.123456 | mysql -u root -pmypwd</span><span style="color: #000000;">        </span>--socket=/tmp/mysql_restore.sock</span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="51"><span style="font-family: Arial; font-size: x-small;">20</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Privileges for backup user</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">grant select on *.* to backup@'localhost' identified by 'backup87';<br />
+and<br />
+grant lock tables on cwicwi.* to backup@'localhost'</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="102"><span style="font-family: Arial; font-size: x-small;">21</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Physical backup</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">mysqlhotcopy db_name /path/to/some/dir</span></td>
+<td width="221"><span style="font-size: x-small;"><span style="font-family: Arial;">user used to do backup must have select privilege on the backed up database and reload privilege on all the datbase<br />
+<span style="color: #000000;"><strong>grant Reload on *.* to backup@localhost;</strong></span></span></span></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">22</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Recovery Corrupt table</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">REPAIR TABLE or myisamchk -r</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td rowspan="9" height="255"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+<td rowspan="9" width="108"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">myisamchk tbl_name</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">to check the tablename</span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">myisamchk -e tbl_name</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">extended check</span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">myisamchk -v tbl_name</span></td>
+<td width="221"><span style="font-size: x-small;"><span style="font-family: Arial;">gives first 20 errors<span style="color: #000000;"> </span></span></span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">myisamchk -v -i tbl_name</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">gives further statistical information</span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">myisamchk *.MYI</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td width="529" height="17"><strong><span style="font-family: Arial; font-size: x-small;">Make a backup of the data file before continuing.</span></strong></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td width="529" height="34"><span style="font-family: Arial; font-size: x-small;">1. myisamchk -r -q tbl_name</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">quick repair. If this not works then 2.</span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">2. myisamchk -r tbl_name</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">recover. If nthis not works then 3.</span></td>
+</tr>
+<tr>
+<td width="529" height="102"><span style="font-family: Arial; font-size: x-small;">3. myisamchk --safe-recover tbl_name.</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">If you want a repair operation to go much faster, you should set the values of the sort_buffer_size and<br />
+key_buffer_size variables each to about 25% of your available memory when running myisamchk.</span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">23</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Error information</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">perror errorno.</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="51"><span style="font-family: Arial; font-size: x-small;">24</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Show Create table</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">Show create table &lt;tablename&gt;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">It displays the create table statement to get the options used to create the table.</span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">25</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">Locking table</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">FLUSH TABLE WITH READ LOCK;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="17"><span style="font-family: Arial; font-size: x-small;">26</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">read only</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">SET GLOBAL read_only=ON;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="170"><span style="font-family: Arial; font-size: x-small;">27</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">grant drop,index, create ,alter on cwicwi.* to application@'localhost';<br />
+flush privileges;<br />
+GRANT CREATE TEMPORARY TABLES ON cwicwi.* to application@'localhost';<br />
+flush privileges;</p>
+<p>revoke drop,index, create ,alter on cwicwi.* from application@'localhost';<br />
+flush privileges;<br />
+revoke CREATE TEMPORARY TABLES ON cwicwi.* from application@'localhost';<br />
+flush privileges;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="51"><span style="font-family: Arial; font-size: x-small;">28</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">encrypt and decrypt</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">$ openssl enc -aes-256-cbc -salt</span><span style="font-size: x-small;"><span style="font-family: Arial;"><span style="color: #000000;">  -pass pass:$password -in file.txt -out file.out</p>
+<p>$ openssl enc -d -aes-256-cbc -salt -pass pass:$password -in</span><span style="color: #000000;"> </span></span></span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td align="right" height="221"><span style="font-family: Arial; font-size: x-small;">29</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">restoring a single table from a dump file</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">awk ‘/Table structure for table .test1./,/Table structure for table .test2./{print}’ mydumpfile.sql &gt; /tmp/extracted_table.sql</p>
+<p>Ex :<br />
+awk '/Table structure for table `temp`/,/UNLOCK TABLES/' amartest.sql &gt; extracted_table.sql</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;">The awk command is very powerful – the above command searches through the dump file, and as soon as it matches a line containing the first search string (denoted by the first set of slashes), it prints that line and every subsequent line until it encounters a line containing the second search string (denoted by the second set of slashes).<span style="color: #000000;">  </span>FYI, the periods surrounding the table names above are wildcard characters.</span></td>
+</tr>
+<tr>
+<td rowspan="4" height="119"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+<td rowspan="4" width="108"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">Restore your data to the fakedb with a command like this:</p>
+<p>$ mysql -u user -ppassword fakedb &lt; mydumpfile.sql<br />
+</span></td>
+<td rowspan="4" width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">mysql&gt; select * from targettable into outfile “/tmp/mytablebackup.bak”;</span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">mysql&gt; delete from baddatatable;</span></td>
+</tr>
+<tr>
+<td width="529" height="17"><span style="font-family: Arial; font-size: x-small;">mysql&gt; load data infile “/tmp/mytablebackup.bak” into table baddatatable;</span></td>
+</tr>
+<tr>
+<td align="right" height="34"><span style="font-family: Arial; font-size: x-small;">30</span></td>
+<td width="108"><span style="font-family: Arial; font-size: x-small;">changing engine type</span></td>
+<td width="529"><span style="font-family: Arial; font-size: x-small;">ALTER TABLE tablename TYPE=InnoDB;</span></td>
+<td width="221"><span style="font-family: Arial; font-size: x-small;"> </span></td>
+</tr>
+</tbody>
+</table>
+<p style="text-align: left;"> </p>

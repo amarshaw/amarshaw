@@ -1,0 +1,83 @@
+﻿<p><strong>Disable root login as ssh: -</strong><br />
+Go to /etc/sshd/sshd_config</p>
+<pre>PermitRootLogin no
+Restart sshd service</pre>
+<p><strong>Configure the /etc/ssh/sshd_config file</strong></p>
+<p>The /etc/ssh/sshd_config file is the system-wide configuration file for OpenSSH which allows you to set options that modify the operation of the daemon. This file contains keyword-value pairs, one per line, with keywords being case insensitive. Here are the most important keywords to configure your sshd for top security; a complete listing and/or special requirements are available in the man page for sshd(8).<br />
+Edit the sshd_config file, vi /etc/ssh/sshd_config and add/or change, if necessary, the following parameters:</p>
+<table border="0" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td width="624">          # This is ssh server systemwide configuration file.<br />
+          Port 22<br />
+          ListenAddress 192.168.1.1<br />
+          HostKey /etc/ssh/ssh_host_key<br />
+          ServerKeyBits 1024<br />
+          LoginGraceTime 600<br />
+          KeyRegenerationInterval 3600<br />
+          PermitRootLogin no<br />
+          IgnoreRhosts yes<br />
+          IgnoreUserKnownHosts yes<br />
+          StrictModes yes<br />
+          X11Forwarding no<br />
+          PrintMotd yes<br />
+          SyslogFacility AUTH<br />
+          LogLevel INFO<br />
+          RhostsAuthentication no<br />
+          RhostsRSAAuthentication no<br />
+         RSAAuthentication yes<br />
+          PasswordAuthentication yes<br />
+          PermitEmptyPasswords no<br />
+          AllowUsers admin</td>
+</tr>
+</tbody>
+</table>
+<p>This tells sshd_config file to set itself up for this particular configuration setup with:<br />
+<strong>Port 22</strong><br />
+The option Port specifies on which port number ssh daemon listens for incoming connections. The default port is 22.<br />
+strong&gt;ListenAddress 192.168.1.1<br />
+The option ListenAddress specifies the IP address of the interface network on which the ssh daemon server socket is bind. The default is 0.0.0.0; to improve security you may specify only the required ones to limit possible addresses.<br />
+<strong>HostKey /etc/ssh/ssh_host_key</strong><br />
+The option HostKey specifies the location containing the private host key.<br />
+<strong>ServerKeyBits 1024</strong><br />
+The option ServerKeyBits specifies how many bits to use in the server key. These bits are used when the daemon starts to generate its RSA key.<br />
+<strong>LoginGraceTime 600</strong><br />
+The option LoginGraceTime specifies how long in seconds after a connection request the server will wait before disconnecting if the user has not successfully logged in.<br />
+<strong>KeyRegenerationInterval 3600</strong><br />
+The option KeyRegenerationInterval specifies how long in seconds the server should wait before automatically regenerated its key. This is a security feature to prevent decrypting captured sessions.<br />
+<strong>PermitRootLogin no</strong><br />
+The option PermitRootLogin specifies whether root can log in using ssh. Never say yes to this option.<br />
+<strong>IgnoreRhosts yes</strong><br />
+The option IgnoreRhosts specifies whether rhosts or shosts files should not be used in authentication. For security reasons it is recommended to no use rhosts or shosts files for authentication.<br />
+<strong>IgnoreUserKnownHosts yes</strong><br />
+The option IgnoreUserKnownHosts specifies whether the ssh daemon should ignore the user's $HOME/.ssh/known_hosts during RhostsRSAAuthentication.<br />
+<strong>StrictModes yes</strong><br />
+The option StrictModes specifies whether ssh should check user's permissions in their home directory and rhosts files before accepting login. This option must always be set to <strong>yes</strong> because sometimes users may accidentally leave their directory or files world-writable.<br />
+<strong>X11Forwarding no</strong><br />
+The option X11Forwarding specifies whether X11 forwarding should be enabled or not on this server. Since we setup a server without GUI installed on it, we can safely turn this option off.<br />
+<strong>PrintMotd yes</strong><br />
+The option PrintMotd specifies whether the ssh daemon should print the contents of the /etc/motd file when a user logs in interactively. The /etc/motd file is also known as the message of the day.<br />
+<strong>SyslogFacility AUTH</strong><br />
+The option SyslogFacility specifies the facility code used when logging messages from sshd. The facility specifies the subsystem that roduced the message--in our case, AUTH.<br />
+<strong>LogLevel INFO</strong><br />
+The option LogLevel specifies the level that is used when logging messages from sshd. INFO is a good choice. See the man page for sshd for more information on other possibilities.<br />
+<strong>RhostsAuthentication no</strong><br />
+The option RhostsAuthentication specifies whether sshd can try to use rhosts based authentication. Because rhosts authentication is insecure you shouldn't use this option.<br />
+<strong>RhostsRSAAuthentication no</strong><br />
+The option RhostsRSAAuthentication specifies whether to try rhosts authentication in concert with RSA host authentication.<br />
+<strong>RSAAuthentication yes</strong><br />
+The option RSAAuthentication specifies whether to try RSA authentication. This option must be set to <strong>yes</strong> for better security in your sessions. RSA use public and private key pairs created with the ssh-keygen1utility for authentication purposes.<br />
+<strong>PasswordAuthentication yes</strong><br />
+The option PasswordAuthentication specifies whether we should use password-based authentication. For strong security, this option must always be set to <strong>yes</strong>.<br />
+<strong>PermitEmptyPasswords no</strong><br />
+The option PermitEmptyPasswords specifies whether the server allows logging in to accounts with a null password. If you intend to use the scp utility to make automatic backups over the network, you must set this option to <strong>yes</strong>.<br />
+<strong>AllowUsers admin</strong><br />
+The option AllowUsers specifies and controls which users can access ssh services. Multiple users can be specified, separated by spaces.<br />
+<strong>DenyUsers </strong>amar<br />
+For more parameter check man <strong>sshd_config</strong><strong> </strong><br />
+<strong>User Permission</strong>:<br />
+Getfacl folder name<br />
+Setfacl -m u:username:rwx folder name<br />
+-m for modify<br />
+-x for delete<br />
+Setfacl -x username folder name</p>

@@ -1,0 +1,50 @@
+
+<p><strong>Install Ruby 1.9.3 from RVM.</strong></p>
+<p>See requirements for RVM</p>
+<pre>
+rvm requirements
+</pre>
+<p><strong>Install RVM</strong></p>
+<pre>
+\curl -L https://get.rvm.io | bash
+rvm install 1.9.3
+</pre>
+<p><strong>Install Ruby 1.8.7 from RVM</strong></p>
+<pre>
+rvm install 1.8.7
+</pre>
+<p><strong>To see the installed ruby version.</strong></p>
+<pre>
+rvm list
+</pre>
+<p><strong>To see the ruby version </strong></p>
+<pre>
+ruby -v
+</pre>
+<p><strong>Set Default Ruby version</strong></p>
+<pre>
+rvm use 1.9.2
+Or
+rvm use 1.9.3 --default
+</pre>
+<p><strong>Install Ruby 1.9.3 from tar file</strong></p>
+<pre>
+wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p448.tar.gz
+tar -xvf ruby-1.9.3-p448.tar.gz
+cd ruby-1.9.3-p448/
+./configure
+make
+make install
+</pre>
+<p><strong>Install libyaml from tar file</strong></p>
+<pre>
+tar zxf yaml-0.1.4.tar.gz
+cd yaml-0.1.4
+./configure
+make
+make install
+</pre>
+<p><strong>Install libyaml from rvm</strong></p>
+<pre>
+rvm pkg install libyaml
+</pre>

@@ -1,0 +1,154 @@
+﻿
+<p align="center"><strong><span style="text-decoration: underline;">Mac Base Squid Configuration</span></strong></p>
+<p>O.S.                        :          <strong>RedHat 8.0</strong><br />
+Proxy Server    :           <strong>Squid-2.5.STABLE6.tar.gz</strong></p>
+<p>Download the squid from the following link<br />
+<a href="http://www.squid-cache.org/Versions/v2/2.5/">http://www.squid-cache.org/Versions/v2/2.5/</a><br />
+<strong></strong></p>
+<p><strong>What is Squid</strong><br />
+Squid is a high-performance proxy caching server for web clients, d HTTP data objects. Unlike traditional caching software, Squid handles all requests in a single, non-blocking, I/O-driven process.<br />
+<strong>How big of a system do we need to run squid.</strong><br />
+There are no hard-and-fast rules. The most important resource for Squid is physical memory. Your processor does not need to be ultra-fast. Your disk system will be the major bottleneck, so fast disks are important for high-volume caches</p>
+<ul>
+<li>300 MHz Pentium II CPU</li>
+<li style="text-align: left;">256 MB RAM</li>
+</ul>
+<p style="text-align: left;"><strong>How to install Squid.</strong></p>
+<p style="text-align: left;">Download the squid tar file.<br />
+Untar this tar file with the following options.</p>
+<pre>#tar xzvf squid-2.5.STABLE6.tar.gz
+#cd squid-2.5.STABLE
+#./configure --prefix=/etc/squid --enable-carp --enable-arp-acl --enable-delay-pools –enable-useragent-log
+#make all
+#make install</pre>
+<p>Note:-you can install the squid according to you need<br />
+For example you can also install the squid in /usr/local directory.<br />
+Now squid is install in the /etc/squid directory.<br />
+To check that squid configuration is correct or not use the following options.</p>
+<pre>#/etc/squid/sbin/squid –k parse</pre>
+<p><strong>Change the permission of /etc/squid/var to nobody:nobody</strong></p>
+<pre>#chown nobody:nobody var –R</pre>
+<p>First, you must create the swap directories. Do this by running Squid with the -z option</p>
+<pre>#/etc/squid/ sbin/squid -z</pre>
+<p>To start and stop squid use the following command respectively</p>
+<pre>#/etc/squid/ sbin –D
+#killall –9 squid</pre>
+<p>To check that that squid is running or not use the following command</p>
+<pre>#ps –aux | grep squid</pre>
+<p>it will show the process id if squid is running.<br />
+Or<br />
+We can also check the squid status by the following command.</p>
+<pre>#/etc/squid/sbin/squid status</pre>
+<p>For debugging squid use the following commands.</p>
+<pre>#/etc/squid/sbin/squid –k debug</pre>
+<p><span style="text-decoration: underline;"><strong>Configuration file</strong></span><br />
+After make install, a sample squid.conf file will exist in the "etc" directory under the Squid installation directory.<br />
+The sample squid.conf file contains comments explaining each option.<br />
+How to start squid automatically when the system boots. Put a entry in the following file.</p>
+<pre>#vi /etc/rc.local
+/etc/squid/sbin/squid -D
+</pre>
+<p><strong>Squid Log files:-</strong></p>
+<p>The logs are a valuable source of information about Squid workloads and performance. The logs record not only access information, but also system configuration errors and resource consumption (eg, memory, disk space). There are several log file maintained by Squid.</p>
+<p><strong>Cache.log</strong></p>
+<p>The cache.log file contains the debug and error messages that Squid generates</p>
+<p><strong>Access.log</strong></p>
+<p>Most log file analysis program are based on the entries in access.log<br />
+Note:-You should never delete access.log, store.log, cache.log while Squid is runningIf log files get very big You need to <em>rotate</em>your log files with a cron job. For example:</p>
+<pre>0 0 * * * /etc/squid/etc/sbin/squid -k rotate</pre>
+<p><strong>Rules Implementation.</strong><br />
+There are four categories.<br />
+<strong>Catone </strong>= <strong>catadmin</strong>(all sites are allowed to view except pron1)<br />
+<strong>Cattwo = </strong>(all sites at all times, + restricted sites for cat two users like naukri.com , jobes.com)<br />
+<strong>Catthree = </strong>(can access the following sites at1-2Pm and6-8 PM )<br />
+<a href="http://www.hotmail.com/">www.hotmail.com</a> , <a href="http://www.yahoo.com/">www.yahoo.com</a>, <a href="http://www.sify.com/">www.sify.com</a>, <a href="http://www.rediff.com/">www.rediff.com</a>,<br />
+Catthree users can access following sites for 24 hours.</p>
+<pre>
+amarshaw.com
+Yahoo.com
+Rediffmail.com
+</pre>
+<p>if catthree users asks for more sites to open they have to give the names of sites with the approval of there heads.<br />
+<strong>Catfour</strong> = (can visit all sites except restricted one)</p>
+<pre>
+<strong> <a href="http://www.123gretings.com/">www.123gretings.com</a>,</strong>
+<strong> <a href="http://www.americangreetings.com/">www.americangreetings.com</a>,</strong>
+<strong> <a href="http://www.bazi.com/">www.bazi.com</a>,</strong>
+<strong> <a href="http://www.maayboli.com/">www.maayboli.com</a> </strong>
+</pre>
+<p><strong>ACL (access control lists)</strong></p>
+<pre>acl arp_one arp “/etc/squid/etc/catone”
+acl arp_two arp “/etc/squid/etc/cattwo”
+acl arp_three arp “/etc/squid/etc/catthree”
+acl arp_four arp “/etc/squid/etc/catfour”
+acl porn url_regex “/etc/squid/etc/porn1”
+acl cat3good url-regex “/etc/squid/etc/c3sites_good”
+acl lunch time14:00-14:30
+acl evening time18:00-20:00
+acl cat2bad url-regex “/etc/squid/etc/c2sites_bad”
+acl cat3bad url-regex “/etc/squid/etc/c3sites_bad”
+acl cat3bad url-regex “/etc/squid/etc/c4sites_bad”
+http_access allow arp_one
+http_access allow arp_two cat2bad
+http_access allow arp_two
+http_access deny arp_four cat4bad
+http_access allow arp_four
+http_access allow lunch arp_three cat3bad
+http_access allow evening arp_three cat3bad
+http_access deny !cat3good
+http_access allow arp_three cat3good</pre>
+<p><strong>Squid User Category</strong><br />
+<span style="text-decoration: underline;"><strong>Cat Admin</strong> :</span></p>
+<p>All Allow, Only For Servers and IT administrators.<br />
+<span style="text-decoration: underline;"><strong>Cat One</strong>:</span></p>
+<p>All Allow, Only For AVP And Above.<br />
+<span style="text-decoration: underline;"><strong>Cat Two</strong> :</span></p>
+<p>Here the users can visit all sites at all times except the below mentioned<br />
+<strong>sites :</strong></p>
+<pre>naukri.com
+jobs.com
+monster.com
+jobs
+123greetings.com
+ecardiaddict.com</pre>
+<p><span style="text-decoration: underline;"><strong>Cat Three :</strong></span></p>
+<p>Here the users can access following sites between 1-2 PM and  6-8 PM<br />
+<strong>Sites :</strong></p>
+<pre><strong><a href="http://www.hotmail.com/">www.hotmail.com</a></strong>
+<a href="http://www.yahoo.com/">www.yahoo.com</a>
+<a href="http://www.sify.com/">www.sify.com</a>
+<a href="http://www.rediff.com/">www.rediff.com</a>
+<a href="http://www.rediffmail.com/">www.rediffmail.com</a>
+<a href="http://www.indiatimes.com/">www.indiatimes.com</a></pre>
+<p>Additionally they can access the following sites at all times (24 hours)<br />
+<strong>Sites :</strong></p>
+<pre>microsoft.com
+windowsupdate.com
+smartforce.com
+citibank.co.in
+citibank.com
+icicibank.com
+bankofindia.com
+bankofindia.com</pre>
+<p>if cat-three users complaints for more sites to open they have to give the names of sites with the approval of their heads, after that selected sites can be added to cat-three, 24 hours sites, and rest can be used through Cyber.<br />
+<span style="text-decoration: underline;"><strong>Cat Four :</strong></span><br />
+Here the users can visit all sites at all times including Jobs Sites.<br />
+<strong>Users in Different Category</strong></p>
+<p><strong>Squid User List</strong></p>
+<p><strong>Cat Admin</strong></p>
+<pre>00:50:8D:46:84:9C       #Amar                   10.10.10.95
+00:02:E3:3E:8E:7A       #sangita                10.10.10.93</pre>
+<p><strong>Cat One</strong></p>
+<pre>00:06:1B:DB:3D:DD       #ABC                    10.10.10.111
+00:00:39:95:ED:D4       #XYZ                   10.10.10.104</pre>
+<p><strong>Cat Two</strong></p>
+<pre>00:08:A1:32:F5:60       #MT                     10.10.10.199
+00:80:48:9E:D6:34       #MT                     10.10.10.219
+10:E0:8C:70:09:0E       #MT                     10.10.10.198
+00:80:48:9D:D9:0A       #MT                     10.10.10.196</pre>
+<p><strong>Cat Three</strong></p>
+<pre>00:00:21:E4:3C:7C       #CCC                    10.10.10.75
+00:0F:FE:37:5D:5B       #DDD                   10.10.10.195</pre>
+<p><strong>Cat Four</strong></p>
+<pre>00:80:48:AB:8A:AE       #OOO                    10.10.10.66
+00:00:E2:7F:1A:7B       #KKK                    10.10.10.227</pre>

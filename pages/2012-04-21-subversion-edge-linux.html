@@ -1,0 +1,69 @@
+﻿<p style="text-align: center;"><span style="text-decoration: underline;"><strong>Install Subversion Edge on Linux</strong></span></p>
+<p style="text-align: left;">The Linux distribution is a tar.gz archive. Expand it to the location where you want to install.<br />
+Important: You must install the application as a non-root user. If you install as a root user, you will later need to change the ownership of all files to a non-root user, and run the application as that non-root user.</p>
+<p style="text-align: left;">
+1. Prepare the server by installing the required software.<br />
+Install a Java 6 JRE. The Sun/Oracle JRE is recommended.<br />
+Set the JAVA_HOME environment variable, and point it to your Java 6 JRE home. For example:</p>
+<pre>export JAVA_HOME=/usr/lib/jvm/java-1.6.0-sun</pre>
+<p style="text-align: left;">In case you do not have Python already, install it.<br />
+2. Switch to the parent directory where you want to install Subversion Edge.</p>
+<pre>cd /u1</pre>
+<p style="text-align: left;">3. Get the installer from</p>
+<pre> http://www.collab.net/svnedge.</pre>
+<p style="text-align: left;">4. Unpack the installer.<br />
+Note: Make sure you extract the package as a non-root user.</p>
+<pre> tar -zxf CollabNetSubversionEdge-1.1.0_linux-x86.tar.gz</pre>
+<p style="text-align: left;">The tar.gz file is unpacked to the csvn directory.<br />
+Tip: You can rename the folder to whatever you want using the "mv" command.</p>
+<p style="text-align: left;">5. Run the application.<br />
+Note: You must run the application as a non-root user.</p>
+<pre>cd csvn
+bin/csvn start</pre>
+<p style="text-align: left;">It'll take a minute for the application to start. You should be able to access it from a web browser at</p>
+<pre>http://hostname:3343/csvn</pre>
+<p style="text-align: left;">6. Log into management console with these default administrator credentials.</p>
+<pre>Username: admin
+Password: admin</pre>
+<p>Define repository access rules<br />
+You can configure Subversion's native authorization rules to give users access to a whole repository, or to a specific path within a repository.<br />
+To edit repository access rules, you need the ROLE_ADMIN or ROLE_ADMIN_REPO role.<br />
+1. Select Repositories in the main navigation bar.<br />
+2. Click Access Rules.<br />
+3. Edit the repository access rules.<br />
+The format for an entry is</p>
+<pre>[repositoryname:/path/within/repos].</pre>
+<p style="text-align: left;">Example 1:</p>
+<pre>[dev:/branches/components/xxx]
+user1 = rw
+user2 = r
+user3 =</pre>
+<p style="text-align: left;">This gives "user1" read and write access to the "/branches/components/xxx" directory in the "dev" repository and read-only access to "user2". User "user3" is denied access to this directory, since the username has neither "r" nor "w" assigned.<br />
+Example 2:</p>
+<pre>[/]
+* = rw</pre>
+<p style="text-align: left;">This gives all users read and write access to all repositories.<br />
+You can define groups in a section named [groups] and refer to groups within rules using @groupname.<br />
+Example:</p>
+<pre>[groups]
+mgrs = user1, user2
+
+[dev:/tags]
+* = r
+@mgrs = rw</pre>
+<p style="text-align: left;">This gives the users in the group "mgrs" read as well as write access to the "tags" directory in the "dev" repository. All other users  have read access to this directory.<br />
+Groups can contain other groups.<br />
+Example:</p>
+<pre>[groups]
+mgrs = user1, user2
+engrs = engr1, engr2
+allgroups = @mgrs, @engrs</pre>
+<p style="text-align: left;">4. Click Save.</p>
+<p style="text-align: left;">[/]<br />
+admin = rw (where admin having full rights on all repository)<br />
+[amar:/trunk]<br />
+amar = r (where amar having read access on trunk folder under amar repository)<br />
+[amar:/]<br />
+amar = rw (amar having full access on amar repository)</p>
+<p style="text-align: left;">where admin having full rights on all repository</p>
+<p style="text-align: left;">http://help.collab.net/index.jsp?topic=/csvn/action/setupcsvn.html</p>

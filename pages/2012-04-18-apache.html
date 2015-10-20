@@ -1,0 +1,95 @@
+﻿<p style="text-align: center;" align="center"><strong>Configure Apache</strong></span></p>
+<p>Package needed httpd-2.2.3-6.el5</p>
+<p><strong>Configuration files</strong> –</p>
+<pre>vi /etc/httpd/conf/httpd.conf
+vi /etc/httpd/conf.d/ssl.conf</pre>
+<p>Without ssl configuration for http only—</p>
+<p>At the bottom of this file we found virtual host tab like the below one, we need to edit it as per our configuration.</p>
+<p>Where document root is define the place where index.html of our website placed.<br />
+Server name define the name of ourwebsite in this case it is amar.com.<br />
+ErrorLog is define where error log file generated.<br />
+This configuration is used for only one server.</p>
+<pre>    DocumentRoot /var/www/html
+    ServerName amar.com
+    ErrorLog logs/amar.com-error_log
+    CustomLog logs/amar.com-access_log common</pre>
+<p>For name based virtual hosting please find the below configuration need to be put in bottom of httpd.conf file</p>
+<pre>NameVirtualHost 172.16.34.60:80
+
+    ServerAdmin webmaster@amar1.com
+    DocumentRoot /var/www/html/
+    ServerName www.amar1.com
+
+    ServerAdmin webmaster@testapp.com
+    DocumentRoot /var/www/virt/
+    ServerName testapp.com
+    ErrorLog logs/dummy-host.example.com-error_log
+    CustomLog logs/dummy-host.example.com-access_log common</pre>
+<p>For IP based virtual hosting please find the below configuration need to be put in bottom of httpd.conf file</p>
+<pre>    ServerAdmin webmaster@amar1.com
+    DocumentRoot /var/www/html/
+    ServerName www.amar1.com
+
+    ServerAdmin webmaster@testapp.com
+    DocumentRoot /var/www/virt/
+    ServerName testapp.com
+    ErrorLog logs/dummy-host.example.com-error_log
+    CustomLog logs/dummy-host.example.com-access_log common</pre>
+<p>Where 192.10.10.8 is virtual ip or alias.</p>
+<p>For syntax check run the below command</p>
+<p>Apachectl –t</p>
+<p>And restart the httpd service</p>
+<p>Apache configuration with ssl –</p>
+<p><strong>Install mod_ssl</strong></p>
+<p>For ssl configuration main configuration file is</p>
+<pre>Vi /etc/httpd/conf.d/ssl.conf</pre>
+<pre>Listen 443
+
+SSLRandomSeed startup file:/dev/urandom  1024
+SSLRandomSeed connect file:/dev/urandom  1024
+
+ServerName 172.16.34.59:443
+JkMount /* loadbalancer
+ErrorLog logs/test_log
+TransferLog logs/test_access_log
+LogLevel warn
+SSLEngine on
+SSLProtocol all -SSLv2
+SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:!MEDIUM:!LOW
+SSLCertificateFile /key1/amar.com.crt
+SSLCertificateKeyFile /key1/amar.com.key
+
+SetEnvIf User-Agent ".*MSIE.*" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+CustomLog logs/ssl_request_log \
+          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"</pre>
+<p>The main configuration parameters are :-</p>
+<pre>SSLEngine on
+SSLProtocol all -SSLv2
+SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:!MEDIUM:!LOW
+SSLCertificateFile /key1/amar.com.crt
+SSLCertificateKeyFile /key1/amar.com.key</pre>
+<p><strong>SSLEngine on</strong> (this parameter must be on to enable the ssl)</p>
+<pre>SSLProtocol all -SSLv2</pre>
+<p>(its means it allow all the protocol sslv3 and tls1 except sslv2 for example<br />
+SSLProtocol all will allow all the protocol including sslv2)</p>
+<p># enable SSLv3 and TLSv1, but not SSLv2<br />
+<strong>SSLProtocol all -SSLv2</strong></p>
+<p><strong>SSLCipherSuite</strong></p>
+<p>To check the ssl protocol and cipher suit for website testaaps1.com at port 443</p>
+<pre>openssl s_client -showcerts -connect testapps1.com:443</pre>
+<p>To check the certificate lower then tls1 and ssl3</p>
+<pre>openssl s_client -no_tls1 -no_ssl3 -connect amar.com:443</pre>
+<p>For more detail about ssl cipher please visit the below site:-</p>
+<p>http://httpd.apache.org/docs/2.0/mod/mod_ssl.html</p>
+<pre>SSLCertificateFile /key1/amar.com.crt
+SSLCertificateKeyFile /key1/amar.com.key</pre>
+<p>In above location we provide the certificate and key file we can generate them using open ssl the commands are given below.</p>
+<pre>openssl genrsa -des3 -out _amar.com.key 1024
+
+openssl req -new -key_ amar.com.key –out  amar.com.csr 
+
+openssl x509 -req -days 60 -in_ amar.com.csr –signkey  amar.com.key –out  amar.com.crt</pre>
+<p>imp link<br />
+<strong>http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch20_:_The_Apache_Web_Server</strong></p>

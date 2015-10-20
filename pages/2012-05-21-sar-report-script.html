@@ -1,0 +1,19 @@
+
+<p><strong>Simple Script to generate Custom SAR report in CSV format.</strong></p>
+<pre>#!/bin/bash
+cd `dirname $0`
+COM=`date  +"%d%m%Y"`
+DAT=`date +%d --date='1 day ago'`
+sar -f /var/log/sa/sa$DAT -c | awk -F" " '/[A,P]M/{print $1$2","$3}' &gt;  process
+sar -f /var/log/sa/sa$DAT -b | awk -F" " '/[A,P]M/{print $6","$7}' &gt; diskio
+sar -f /var/log/sa/sa$DAT -r | awk -F" " '/[A,P]M/{print $5","$11}' &gt; memory
+sar -f /var/log/sa/sa$DAT -u | awk -F" " '/[A,P]M/{print $7}' &gt; cpu
+sar -f /var/log/sa/sa$DAT -u | awk -F" " '/[A,P]M/{print $9}' &gt; cpu_idel
+sar -f /var/log/sa/sa$DAT -q | awk -F" " '/[A,P]M/{print $5}' &gt; load
+paste -d"," process diskio memory cpu cpu_idel load &gt; Commodity_Pri_$COM.csv
+echo -e "\n Dear All," &gt; mail.out
+echo -e "\n Kindly find the SAR Report Mail for dated ("`date`") as an enclosed attachment." &gt;&gt; mail.out
+echo -e  "\n Thanks &amp; Regds" &gt;&gt; mail.out
+echo " Process Monitoring Team" &gt;&gt; mail.out
+sleep 5
+cat /home/oaa/Monitor/SAR_Repory/mail.out | mutt -s "Primary Server Mail : SAR Report Mail" -a /home/oaa/Monitor/SAR_Repory/Commodity_Pri_$COM.csv amarshaw@amarshaw.com</pre>

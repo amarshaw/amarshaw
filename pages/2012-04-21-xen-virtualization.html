@@ -1,0 +1,53 @@
+﻿
+<div>
+<h6 align="center"><span style="text-decoration: underline;">Xen Virtualization</span></h6>
+<h6>Minimum system requirements</h6>
+</div>
+<ul>
+<li>6GB free disk space</li>
+<li>2GB of RAM.</li>
+</ul>
+<p>Installing XEN</p>
+<pre><strong><code>yum install xen virt-manager kernel-xen</code></strong>
+<code># chkconfig xend on</code>
+<code># reboot</code></pre>
+<p><code></code><br />
+Make sure you boot CentOS server using XEN kernel.<br />
+<code></code></p>
+<pre><code># virt-manager &amp;</code></pre>
+<p><code></code><br />
+<a href="http://amarshaw.com/wp-content/uploads/2012/04/0.jpg"><img class="alignnone  wp-image-169" title="0" src="assets/0-300x240.jpg" alt="" width="641" height="240" /></a><br />
+ </p>
+<p><strong>RPM needs</strong></p>
+<pre>bridge-utils-1.1.2.i386.rpm
+iproute-2.6.18-4.el5.i386.rpm
+kernel-xen-2.6.18-8.el5.i686.rpm
+kernel-xen-devel-2.6.18-8.el5.i686.prm
+udev-095-14.5.el5.i386.rpm
+libvirt-0.7.0-1.fc11.src.<em>rpm </em></pre>
+<p><strong>CPU management in xen guest os</strong></p>
+<p>we can assign more then 1 cpu to a Paravirtualize guest if we have more then 1 cpu in our host machine.</p>
+<pre>virt-manager -&gt; Open -&gt; View -&gt; Details -&gt; Hardware -&gt; processor -&gt;</pre>
+<p>and then change allocation as much u want but not more then cpu present in host machine.</p>
+<p><a href="http://amarshaw.com/wp-content/uploads/2012/04/1.jpg"><img class="alignnone  wp-image-170" title="1" src="assets/1-300x241.jpg" alt="" width="575" height="241" /></a><br />
+ </p>
+<p>Note : we can’t assign more then one cpu in fully-virtualized guest os like windows.</p>
+<p><strong>2. Memory management in xen guest os ?</strong></p>
+<p>We can change the ram for a guest os by changing the parameter in configuration file which is placed at “/etc/xen/”</p>
+<p>Open the configuration file which having the name as same as domain name and change the parameter “memory= 2048” right now its having a 2gm memory u can change it as much u want but u can’t give it more then memory what the base domain contain dom0,<br />
+<a href="http://amarshaw.com/wp-content/uploads/2012/04/2.jpg"><img class="alignnone  wp-image-171" title="2" src="assets/2-300x241.jpg" alt="" width="590" height="242" /></a></p>
+<p><strong></strong></p>
+<p><strong>2.     </strong><strong>Disk management in xen guest</strong><br />
+ <br />
+Create a disk first using below command.</p>
+<pre>#dd if=/dev/zero of=/vm/images/guest.img bs=1M count=5120</pre>
+<p>it will create 5120mb disk file around 5gb and save it at location /vm/images/ having name guest.img<br />
+To extend and make it 10G without losing data, the below command can be executed which is the safest method, I think.</p>
+<pre># dd if=/dev/zero bs=1M count=5120 &gt;&gt; /vm/images/guest.img</pre>
+<p>To attach a new file based image as xvdb to guest named guest1 with read-write, below command can be used.</p>
+<pre># xm block-attach xen_wls 1 tap:aio:/vm/images/guest.img /dev/xvdb w</pre>
+<p>Where xen_wls is the domain name vm must be started before using this command ,the guest.img is a file what we created using dd command.<br />
+<strong><a href="http://amarshaw.com/wp-content/uploads/2012/04/3.jpg"><img class="alignnone  wp-image-172" title="3" src="assets/3-300x240.jpg" alt="" width="503" height="247" /></a></strong><br />
+ </p>
+<pre>xm create -c DOMU extra=" init 1 xencons=xvc0"</pre>
+<p><strong>to run the xen guest in single user mode DOMU is the xen guest name</strong></p>

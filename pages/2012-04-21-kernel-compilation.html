@@ -1,0 +1,35 @@
+﻿<p style="text-align: center;"><span style="text-decoration: underline;"><strong>Kernel Compilation</strong></span></p>
+<p> Download the latest kernel from <a href="http://www.kernel.org/">http://www.kernel.org/</a></p>
+<ol>
+<li>Copy it on /tmp or any where as per space availability.</li>
+<li>extract it on /usr/src/kernel/ folder using command tar –xjvf kernel file.</li>
+<li>take the backup for /boot files</li>
+<li>check the directory permission on that new extracted directory it should be like that 
+<pre>“drwxr-xr-x   19 root     root         4096 Apr 06 08:29 directory name”</pre>
+</li>
+<li>If it’s not like that then change it using chmod command.</li>
+<li>Then check whether gcc compiler is installing or not if not installed it using yum if yum is not available install it using rpm.</li>
+<li>After installing the gcc go to the extracted directory of kernel which will be at /usr/src/kernel/directory_name.</li>
+<li>run the command “<code>make menuconfig</code><code>” for configuring the kernel change the setting if you are expert in it other wise select the default option and save it and make exit from it, when exit from that configuration window it will create a hidden file name .config at the same directory.</code></li>
+<li><code>After then run the command “make dep” </code>This command builds the tree of interdependencies in the kernel sources. These dependencies may have been affected by the options you have chosen in the configure step.<code>    </code></li>
+<li>Then run the command “make zImage” it will create the image file for kernel.</li>
+<li>Then run the command “make modules” it will build the module if it takes longer time depending on how much module do u have.</li>
+<li>In this step will install all modules using command “make modules install” .This will copy all the modules to a new directory, "/lib/modules/a.b.c" where a.b.c is the kernel version.</li>
+<li>after that we will install the kernel using command “make install” it will copy the below files to /boot location</li>
+</ol>
+<pre>vmlinuz-2.6.27.49
+System.map-2.6.27.49
+initrd-2.6.27.49.img</pre>
+<p>15 files must be present on /boot location are :-</p>
+<pre>vmlinuz-2.6.27.49
+System.map-2.6.27.49
+initrd-2.6.27.49.img
+config-2.6.27.49
+Config-2.6.27.49</pre>
+<p>For this file go to location /usr/src/kernel/extracted_kernel_dir/ and copy the file .config what we have created in step 9 using command</p>
+<pre>cp .config /boot/config-2.6.27.49</pre>
+<p>These are the references:-</p>
+<pre><a href="http://www.cyberciti.biz/tips/compiling-linux-kernel-26.html">http://www.cyberciti.biz/tips/compiling-linux-kernel-26.html</a>
+<a href="http://www.sysdesign.ca/guides/linux_kernel.html">http://www.sysdesign.ca/guides/linux_kernel.html</a>
+<a href="http://www.linuxplanet.com/linuxplanet/tutorials/202/1/">http://www.linuxplanet.com/linuxplanet/tutorials/202/1/</a></pre>
+<p>then go to grub.conf and make it default kernel.</p>

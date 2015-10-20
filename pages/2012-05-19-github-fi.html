@@ -1,0 +1,244 @@
+﻿<p><strong>About GitHub-FI :-</strong></p>
+<p>GitHub Firewall Install is a version of <a href="http://github.com/">GitHub</a> you can install behind a corporate firewall. With your own internal GitHub you can combine the best aspects of social code management with the security of your private network.</p>
+<p>This document contain below mention things.</p>
+<p><strong>1&gt; Installation Of GitHub-FI.</strong><br />
+<strong>2&gt; Setting up LDAP for Github</strong><br />
+<strong>3&gt; How to give users administrative privilege through command prompt.</strong><br />
+<strong>4&gt; Backup And Restoration of Github-FI Server</strong></p>
+<p style="text-align: center;"><strong><span style="text-decoration: underline;">Github Installation Steps</span></strong></p>
+<p><strong><span style="text-decoration: underline;">Entry In hosts file</span></strong></p>
+<pre>yourdomain.com:/opt # cat /etc/hosts
+#
+# hosts         This file describes a number of hostname-to-address
+#               mappings for the TCP/IP subsystem.  It is mostly
+#               used at boot time, when no name servers are running.
+#               On small systems, this file can be used instead of a
+#               "named" name server.
+# Syntax:
+#
+# IP-Address  Full-Qualified-Hostname  Short-Hostname
+#
+127.0.0.1       localhost
+168.10.10.10 yourdomain.com
+168.10.10.10 github yourdomain.com.
+yourdomain.com:/opt #</pre>
+<p><strong><span style="text-decoration: underline;">Path of Github Installer</span></strong></p>
+<pre>yourdomain.com:/opt # ll
+total 361248
+GitHubFI-2.7-linux-installer.run
+fi_GitHubFI-2.7-linux-installer.tgz
+yourdomain.com:/opt # pwd
+/opt
+yourdomain.com:/opt #</pre>
+<p><strong><span style="text-decoration: underline;">DNS/URL’s of Github<br />
+</span></strong></p>
+<p>http://github.yourdomain.com/<br />
+http://gist.github.yourdomain.com/<br />
+<strong></strong></p>
+<p><strong><span style="text-decoration: underline;">Installation Log</span></strong></p>
+<pre>yourdomain.com:/opt # ./GitHubFI-2.7-linux-installer.run
+----------------------------------------------------------------------------
+Welcome to the GitHub Firewall Install Setup Wizard.
+----------------------------------------------------------------------------
+Installation folder
+Please, choose a folder to install GitHub Firewall Install
+Select a folder [/opt/GitHubFI-2.7]: /opt/github.yourdomain.com
+----------------------------------------------------------------------------
+Install as a service
+You can optionally register GitHub Firewall Install as a service. This way it
+will automatically be started every time the machine is started.
+Install GitHub Firewall Install as a service? [Y/n]: y
+----------------------------------------------------------------------------
+Please enter the installation ID.
+Installation ID []: ******************* (Note : Your installation ID provided by github. )
+----------------------------------------------------------------------------
+Please enter the URL (without http://), Hostname, or IP Address you will use to
+connect to this machine:
+URL / Hostname / IP []: github.yourdomain.com
+----------------------------------------------------------------------------
+Github User Account
+Set first github user credentials.
+Github User Name [github]: admin
+Github User Email [user@domain.com]: admin@yourdomain.com
+Github User Password [********] :
+Re-enter [********] :
+<strong></strong>----------------------------------------------------------------------------
+Open Signup
+Select [No] if the site will be publicly accessible. If you select [No], an administrator
+will need to create new accounts:
+[1] Yes
+[2] No
+Please choose an option [2] : 2
+----------------------------------------------------------------------------
+Setup is now ready to begin installing GitHub Firewall Install on your computer.
+Do you want to continue? [Y/n]: Y
+----------------------------------------------------------------------------
+Please wait while Setup installs GitHub Firewall Install on your computer.
+Installing
+0% ______________ 50% ______________ 100%
+#########################################
+/opt/github.yourdomain.com/mysql/scripts/ctl.sh : mysql stopped
+/opt/github.yourdomain.com/memcached/scripts/ctl.sh : Memcached not running
+/opt/github.yourdomain.com/nginx/scripts/ctl.sh : Nginx not running
+The server is not available (or you do not have permissions to access it)
+----------------------------------------------------------------------------
+Setup has finished installing GitHub Firewall Install on your computer.
+Launch GitHub Firewall Install [Y/n]: y
+-Info: Starting servers: it may take a while ...
+Press [Enter] to continue :
+nohup: redirecting stderr to stdout
+Starting mysqld.bin daemon with databases from /opt/github.yourdomain.com/mysql/data
+|/opt/github.yourdomain.com/mysql/scripts/ctl.sh : mysql  started at port 3306
+|/opt/github.yourdomain.com/memcached/scripts/ctl.sh : Memcached started
+-/opt/github.yourdomain.com/nginx/scripts/ctl.sh : Nginx started
+-Info: To access to GitHub Firewall Install, go to
+http://github.yourdomain.com from your browser.
+Press [Enter] to continue :
+yourdomain.com:/opt #</pre>
+<p>Once the installation is complete, its will create two user git and mysql, one group git and one service GitHubFI in etc/init.d.<br />
+<strong></strong></p>
+<p><strong><span style="text-decoration: underline;">git User</span></strong></p>
+<pre>yourdomain.com:/opt/github.yourdomain.com # cat /etc/passwd
+git:x:1000:1000::/opt/github:/bin/bash
+mysql:x:1001:100::/home/mysql:/bin/bash
+yourdomain.com:/opt/github.yourdomain.com #</pre>
+<p><span style="text-decoration: underline;"><strong>git Group</strong></span></p>
+<pre>yourdomain.com:/opt/github.yourdomain.com # cat /etc/group
+git:!:1000:
+yourdomain.com:/opt/github.yourdomain.com #</pre>
+<p><span style="text-decoration: underline;"><strong>GitHub Service</strong></span></p>
+<pre>yourdomain.com:~ # ll /etc/init.d/GitHubFI
+-rwxr-xr-x 1 root root 135 Sep  8 03:17 /etc/init.d/GitHubFI
+yourdomain.com:~ #</pre>
+<p><strong><span style="text-decoration: underline;">Start/Stop github service</span></strong></p>
+<pre>/etc/init.d/GitHubFI stop/start/restart/status</pre>
+<p style="text-align: left;"><strong></strong>Note :- Now we can login to github with admin user<br />
+<strong></strong></p>
+<p style="text-align: center;"><strong><span style="text-decoration: underline;">Github Login Screen</span></strong></p>
+<p style="text-align: center;"><a href="http://amarshaw.com/wp-content/uploads/2012/05/1.jpg"><img class="size-medium wp-image-279" title="1" src="assets/1-300x180.jpg" alt="" width="300" height="180" /></a><br />
+<a href="http://amarshaw.com/wp-content/uploads/2012/05/2.jpg"><img class="size-medium wp-image-280" title="2" src="assets/2-300x109.jpg" alt="" width="300" height="109" /></a><br />
+<strong></strong><br />
+<strong><span style="text-decoration: underline;">Setting up LDAP for Github</span></strong><br />
+<a href="http://amarshaw.com/wp-content/uploads/2012/05/3.jpg"><img class="size-medium wp-image-281" title="3" src="assets/3-300x245.jpg" alt="" width="300" height="245" /></a></p>
+<p style="text-align: left;">host=&gt;ads.yourdomain.com<br />
+port=&gt;389<br />
+base=&gt;CN=groupname,OU=GROUPS,OU=Ouname,DC=ads,DC=yourdomain,DC=com<br />
+uid=&gt;uid<br />
+bind_dn=&gt;CN=adsusername,CN=Users,DC=ads,DC=yourdomain,DC=com<br />
+password=&gt; ***** (Your user password)<br />
+method=&gt;plain</p>
+<p>Now after clicking on Save and Enable LDAP, Github FI service will restart.<br />
+And after that it will give LDAP login screen</p>
+<p style="text-align: center;"><strong></strong><strong><span style="text-decoration: underline;">Github LDAP Login Screen</span></strong><br />
+<a href="http://amarshaw.com/wp-content/uploads/2012/05/4.jpg"><img class="size-medium wp-image-282" title="4" src="assets/4-300x127.jpg" alt="" width="300" height="127" /></a></p>
+<p style="text-align: center;">Login with your ADS credential</p>
+<p><a href="http://amarshaw.com/wp-content/uploads/2012/05/5.jpg"><img class="size-medium wp-image-283 aligncenter" title="5" src="assets/5-300x97.jpg" alt="" width="300" height="97" /></a>After first time login its will ask for your mail ID.<br />
+Give your mail ID here, and click on “save”<br />
+Eg:- ADSUser@yourdomain.com<br />
+<strong></strong></p>
+<p style="text-align: center;"><strong><span style="text-decoration: underline;">Login home page</span></strong></p>
+<p style="text-align: center;"><strong><span style="text-decoration: underline;"><a href="http://amarshaw.com/wp-content/uploads/2012/05/61.jpg"><img class="size-medium wp-image-314" title="7" src="assets/61-300x123.jpg" alt="" width="300" height="123" /></a></span></strong></p>
+<p style="text-align: center;">Github Login Screen</p>
+<p>For Setting up github account and github client installation on your desktop refer below mention link.<br />
+<a href="http://help.github.com/">http://help.github.com/</a><br />
+<strong></strong></p>
+<p><strong>How to give users administrative privilege?</strong></p>
+<pre>- cd [install-dir]
+- ./github-console
+- jruby github/script/console fi
+- user=User.find_by_login("your_user_handle_here")
+- user.gh_role = 'staff'
+- user.save</pre>
+<p><strong><span style="text-decoration: underline;">Output</span></strong></p>
+<pre>yourdomain.com:~ # cd /opt/github.yourdomain.com/
+yourdomain.com:/opt/github.yourdomain.com # ./github-console
+bash-3.2# jruby github/script/console fi
+Loading fi environment (Rails 2.2.2)
+&gt;&gt; user=User.find_by_login("ADSUser")
+=&gt; #&lt;User id: 2, login: "ADSUser", crypted_password: "dcb0609c25011121fdb643b5fdf2c13ec72153a2", salt: "fa681554f3866af968917a9f8973a56ca9a85df7", created_at: "2011-09-08 03:48:16", updated_at: "2011-09-08 06:14:47", remember_token: nil, remember_token_expires_at: nil, wants_email: true, disabled: false, plan: nil, billed_on: nil, billingid: nil, auth_token: "63878ccf175c3a1c8fec04ba63acb4a9", upgrade_ignore: nil, upgrade_accept: nil, gh_role: nil, billing_attempts: 0, spammy: false, last_ip: "172.30.209.0", plan_duration: nil, bouncing_email: nil, billing_extra: nil, gift: nil, last_read_broadcast_id: nil, type: "User", raw_data: "<pre wp-pre-tag-8></pre>3713\b<pre wp-pre-tag-8></pre>0021W10H<pre wp-pre-tag-8></pre>00\v\r13A\nÂ0<pre wp-pre-tag-8></pre>20<pre wp-pre-tag-8></pre>007762çR4660íIÏ<pre wp-pre-tag-8></pre>36}@X7\e\rn22<pre wp-pre-tag-8></pre>22[651077727010131/haR...", referral_code: nil, billing_type: "card"&gt;
+&gt;&gt; user.gh_role = 'staff'
+=&gt; "staff"
+&gt;&gt; user.save
+=&gt; true</pre>
+<p align="center"> <strong><span style="text-decoration: underline;">Backup And Restoration of Github-FI Server</span></strong></p>
+<p><strong style="text-decoration: underline;"><span style="text-decoration: underline;">Backup of Github FI Server</span></strong></p>
+<p>File/DIR need to backup from Github FI server<br />
+Following files and directories need to be backup from Github FI server<br />
+<strong></strong><br />
+<strong>1)</strong> Entire mysql directory from /opt/github.yourdomain.com.<br />
+<strong>2) </strong>Entire Repositories mount point need to be backup<br />
+<strong>3) </strong>/opt/github.yourdomain.com/github/config/database.yml<br />
+<strong></strong></p>
+<p><strong>1) Entire mysql directory from /opt/github.yourdomain.com.</strong></p>
+<pre>yourdomain.com:/opt/github.yourdomain.com # pwd
+/opt/github.yourdomain.com
+yourdomain.com:/opt/github.yourdomain.com #</pre>
+<pre>yourdomain.com:/opt/github.yourdomain.com # ls -la | grep mysql
+drwxr-xr-x 10 root root    4096 Sep  8 03:17 mysql
+yourdomain.com:/opt/github.yourdomain.com #</pre>
+<pre>yourdomain.com:/opt/github.yourdomain.com/mysql # pwd
+/opt/github.yourdomain.com/mysql
+yourdomain.com:/opt/github.yourdomain.com/mysql #</pre>
+<pre>yourdomain.com:/opt/github.yourdomain.com/mysql # ll
+total 72
+-rw-r--r-- 1 root  root 19071 May  5  2009 COPYING
+-rw-r--r-- 1 root  root  5139 May  5  2009 EXCEPTIONS-CLIENT
+-rw-r--r-- 1 root  root  8530 May  5  2009 INSTALL-BINARY
+-rw-r--r-- 1 root  root  1410 May  5  2009 README
+drwxr-xr-x 2 root  root  4096 Sep  8 03:17 bin
+-rwxr-xr-x 1 root  root   801 May  5  2009 configure
+drwxr-x--- 5 mysql root   139 Sep  8 06:31 data
+drwxr-xr-x 3 root  root  4096 Sep  8 03:17 include
+drwxr-xr-x 2 root  root  4096 Sep  8 03:17 lib
+-rw-r--r-- 1 root  root   653 Sep  8 03:17 my.cnf
+drwxr-xr-x 2 root  root    86 Sep  8 03:17 scripts
+drwxr-xr-x 3 root  root  4096 Sep  8 03:17 share
+drwxr-xr-x 2 root  root  4096 Sep  8 03:17 support-files
+drwxrwxrwx 2 root  root    23 Sep  8 06:39 tmp
+yourdomain.com:/opt/github.yourdomain.com/mysql #</pre>
+<pre>yourdomain.com:/opt/github.yourdomain.com/mysql # cd data/
+yourdomain.com:/opt/github.yourdomain.com/mysql/data # pwd
+/opt/github.yourdomain.com/mysql/data</pre>
+<pre>yourdomain.com:/opt/github.yourdomain.com/mysql/data # ll
+total 28692
+-rw-rw---- 1 mysql users        6 Sep  8 06:31 yourdomain.com.pid
+drwx------ 2 mysql users     4096 Sep  8 03:19 github_fi
+-rw-rw---- 1 mysql users  5242880 Sep  8 06:39 ib_logfile0
+-rw-rw---- 1 mysql users  5242880 Sep  8 03:17 ib_logfile1
+-rw-rw---- 1 mysql users 18874368 Sep  8 06:39 ibdata1
+drwxr-x--- 2 mysql root      4096 Sep  8 03:17 mysql
+-rw-rw---- 1 mysql root      3128 Sep  8 06:31 mysqld.log
+drwxr-x--- 2 mysql root        21 Sep  8 03:17 test
+yourdomain.com:/opt/github.yourdomain.com/mysql/data #</pre>
+<p><strong>2) Entire Repositories mount point need to be backup</strong></p>
+<p>yourdomain.com:/ # ls -la | grep repositories<br />
+drwxr-xr-x 3 git git 29 Sep 8 03:24 repositories<br />
+yourdomain.com:/ #<br />
+<strong></strong></p>
+<p><strong>3) </strong><strong>/opt/</strong><strong>github.yourdomain.com/github/config/database.yml</strong></p>
+<pre>yourdomain.com:/ # cd /opt/github.yourdomain.com/github/config/
+yourdomain.com:/opt/github.yourdomain.com/github/config # pwd
+/opt/github.yourdomain.com/github/config
+yourdomain.com:/opt/github.yourdomain.com/github/config #
+yourdomain.com:/opt/github.yourdomain.com/github/config # ll
+total 104
+drwxr-xr-x 2 git git   145 Sep  8 03:17 basic
+-rw-r--r-- 1 git git  4257 Aug 15 17:29 basic.rb
+-rw-r--r-- 1 git git  2817 Oct 27  2010 boot.rb
+-rw-r--r-- 1 git git   318 Sep  8 03:18 database.yml
+-rw-r--r-- 1 git git   746 Oct 27  2010 environment.rb
+drwxr-xr-x 2 git git    18 Sep  8 03:17 environments
+-rw-r--r-- 1 git git   345 Sep  8 03:44 fi_authentication.yml
+drwxr-xr-x 2 git git   150 Sep  8 03:17 god
+drwxr-xr-x 2 git git  4096 Sep  8 03:17 initializers
+drwxr-xr-x 2 git git    69 Sep  8 03:17 languages
+drwxr-xr-x 3 git git    31 Sep  8 03:17 locale
+-rw-r--r-- 1 git git   681 Sep  8 03:17 memcached.yml
+-rw-r--r-- 1 git git   192 Aug 15 17:29 redis.yml
+-rw-r--r-- 1 git git 57650 Aug 15 17:29 routes.rb
+drwxr-xr-x 3 git git    19 Sep  8 03:17 solr
+-rw-r--r-- 1 git git   185 Sep  8 03:17 solr.yml
+-rw-r--r-- 1 git git  1335 Oct 27  2010 special_mime_types.yml
+yourdomain.com:/opt/github.yourdomain.com/github/config #</pre>
+<p style="text-align: left;" align="center"><strong><span style="text-decoration: underline;">Restoration of Github FI Server</span></strong></p>
+<p>All the backup data are need to restore with there respective path and ownership during restoration process.</p>

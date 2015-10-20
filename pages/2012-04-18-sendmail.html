@@ -1,0 +1,58 @@
+<p style="text-align: center;" align="center"><strong>Sendmail, Squirrelmail and Dovecot</strong></span></p>
+<p style="text-align: left;"><strong>Package needed </strong></p>
+<p style="text-align: left;">sendmail-cf-8.13.8-2.el5<br />
+sendmail-8.13.8-2.el5<br />
+squirrelmail-1.4.8-4.el5<br />
+dovecot-1.0-1.2.rc15.el5</p>
+<p style="text-align: left;"><strong>configuration files </strong></p>
+<p style="text-align: left;"><strong>For sendmail</strong></p>
+<p style="text-align: left;">all files present in /etc/mail/ directory</p>
+<pre>/etc/mail/sendmail.mc
+/etc/mail/sendmail.cf 
+/etc/mail/access
+/etc/aliases</pre>
+<p style="text-align: left;"><strong>For Squirrelmail</strong></p>
+<p style="text-align: left;">Go to directory</p>
+<pre>/usr/share/squirrelmail/config/</pre>
+<p style="text-align: left;">And run script conf.pl</p>
+<p style="text-align: left;"><strong>For dovecot</strong></p>
+<pre>/etc/dovecot.conf</pre>
+<p style="text-align: left;"><strong>Sendmail configuration</strong></p>
+<p style="text-align: left;">Edit the file sendmail.mc and comment the below line using dnl parameter as shown below.</p>
+<pre>dnl DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1, Name=MTA')
+dnl # DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1, Name=MTA')</pre>
+<p style="text-align: left;">after that run the below command to right the changes in sendmail.cf file.</p>
+<pre>m4 /etc/mail/sendmail.mc &gt; /etc/mail/sendmail.cf
+make</pre>
+<p style="text-align: left;">then edit the file /etc/aliases</p>
+<p style="text-align: left;">and make the entry at the bottom of the file as given below.</p>
+<pre>vi /etc/aliases 
+amar1:          amar1@amar.com
+amar:           amar@amar.com</pre>
+<p style="text-align: left;">here amar and amar1 are the user having mail address amar@amar.com and amar1@amar.com respectively,</p>
+<p style="text-align: left;">After that go to directory /etc/ using cd /etc/<br />
+And run the command newaliases which crate the aliases db file we have to run this every time we edit the /etc/aliases file</p>
+<p style="text-align: left;">Now we have to configure relay for this mail server</p>
+<p style="text-align: left;">Edit the file /etc/mail/access and place the below line.</p>
+<pre>vi /etc/mail/access
+172.16.34.0 RELAY</pre>
+<p>le="text-align: left;"&gt;It will relay all the mail coming from 172.16.34.0 network.</p>
+<p style="text-align: left;">After that go to /etc/mail directory and run the below command for creating the access.db file.</p>
+<pre>makemap hash access.db &lt; access</pre>
+<p style="text-align: left;">Or</p>
+<pre>makemap hash /etc/mail/access.db &lt; /etc/mail/access</pre>
+<p style="text-align: left;">we have to run this command to update the access.db command every time we place the relay entry in access file.</p>
+<p style="text-align: left;"><strong>Squirrel mail configuration</strong></p>
+<p style="text-align: left;">Just go to /usr/share/squirrelmail/config/ directory<br />
+And run the config.pl script and configure the squirrel mail as per your setup.</p>
+<p style="text-align: left;"><strong>Dovecot configuration </strong></p>
+<p style="text-align: left;">Edit the file</p>
+<pre>vi /etc/dovecot.conf</pre>
+<p style="text-align: left;">And uncomment the below line</p>
+<pre>protocols = imap imaps pop3 pop3s</pre>
+<p style="text-align: left;">basic configuration part is completed</p>
+<p style="text-align: left;">Now restart the services as below</p>
+<pre>/etc/init.d/sendmail restart
+/etc/init.d/dovecot restart
+/etc/init.d/httpd restart</pre>
+<p style="text-align: left;">Access you webmail through http://hostmane/webmail.</p>

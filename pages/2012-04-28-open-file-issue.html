@@ -1,0 +1,22 @@
+﻿<p>&nbsp;</p>
+<p style="text-align: center;"><strong>TOO many open file Issue</strong></p>
+<p>In Unix for this issue we need to increase the ulinit, for that we need to put ulinit –n 9999 entry in the bash profile of user, and for windows we need to increase the SharedSection to 1024,3072,1024 by default its 1024,3072,512 (Just changes the third value from 512 to 1024), below is the way to made the changes.</p>
+<p>Windows (NT/All 2000/2003 versions)</p>
+<p>Courtesy of Murtuza Choilawala:</p>
+<p>By defalut the non-interactive value for the desktop memory heap is set to 512.</p>
+<p>To check the value:</p>
+<p>command:</p>
+<p>regedt32</p>
+<p>HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Subsystems\Windows</p>
+<p>The defalut value for this registry value will look something like the following:</p>
+<p>%SystemRoot%\systems32\csrss.exe ObjectDirectory=\Windows<br />
+SharedSection=1024,3072,512<br />
+Windows=OnSubSystem<br />
+Type=Windows<br />
+ServerDll=basesrv,1<br />
+ServerDll=winsrv:UserserverDllInitialization,3<br />
+ServerDll=winsrv:ConServerDllInitilization,2<br />
+ProfileControl=Off MaxRequestThreads=16</p>
+<p>Double click Windows and change the SharedSection to 1024,3072,1024 (This changes the third value from 512 to 1024)</p>
+<p>Close regedt32</p>
+<p>Reboot the system</p>

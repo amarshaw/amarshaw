@@ -1,0 +1,30 @@
+﻿
+<p style="text-align: center;"><span style="text-decoration: underline;"><strong> Mysql databases backup and restore</strong></span></p>
+<p style="text-align: left;"><strong>Backup:-</strong><br />
+<strong>Full backup</strong></p>
+<pre>mysqldump -u root -p redhat --all-databases | erp_flexi_db.sql</pre>
+<p style="text-align: left;">for zip purpose</p>
+<pre>mysqldump -u root -p redhat --all-databases|gzip -9 &gt;erp_flexi_db.sql.gz</pre>
+<p style="text-align: left;">for exteraction use gunzip flexi_db.sql.gz<br />
+single database backup</p>
+<pre>mysqldump -u root -p redhat database_name | erp_flexi_db.sql</pre>
+<p style="text-align: left;">Restore:-<br />
+Restore from a full backup file</p>
+<pre>mysqldump -u root -p redhat database name &lt; erp_flexi_db.sql</pre>
+<p style="text-align: left;">same command work in case of single database backup<br />
+trouble shooting :-<br />
+Mysql dump using utf8 file system for database bydefault,<br />
+If u are facing problem to restore the database then check the variable define for mysql<br />
+To check it login on to the mysql and run the below command:-<br />
+ show variables;<br />
+ scroll the screen on up side and find the value for the below variables:</p>
+<pre>| character_set_client            | latin1                                                     |
+| character_set_connection        | latin1                                                     |
+| character_set_database          | latin1                                                     |
+| character_set_filesystem        | binary                                                     |
+| character_set_results           | latin1                                                     |
+| character_set_server            | latin1                                                     |
+| character_set_system            | utf8</pre>
+<p style="text-align: left;">The value for character set database is utf8 if it is not so then run the below command to restore the database:-</p>
+<pre>mysql -p --default-character-set=utf8 vipin &lt; database.sql</pre>
+<p style="text-align: left;">where vipin is the database to be restore and database.sql is data backup file to be created using mysqldump command</p>

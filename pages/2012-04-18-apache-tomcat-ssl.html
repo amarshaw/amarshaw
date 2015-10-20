@@ -1,0 +1,82 @@
+﻿<p style="text-align: center;" align="center"><strong>Apache-tomcat with SSL</strong></span></p>
+<p style="text-align: left;">For SSL configuration, first we need to create the SSL key from openssl, below are the command to create the same.</p>
+<pre>openssl genrsa -des3 -out amar.com.key 1024
+
+openssl req -new -key amar.com.key –out  amar.com.csr 
+
+openssl x509 -req -days 60 -in amar.com.csr –signkey  amar.com.key –out  amar.com.crt</pre>
+<p style="text-align: left;"><strong>SSL on apache lavel :-</strong></p>
+<p style="text-align: left;">For ssl mod_ssl is required, we need to load mod_ssl first, then we have to configure ssl.conf file present at /etc/httpd/conf.d/ and we have to make some changes for mod_jk and httpd.conf file.</p>
+<p style="text-align: left;"><strong>ssl.conf</strong></p>
+<pre>ServerName 172.16.34.59:443
+JkMount /* loadbalancer
+ErrorLog logs/test_log
+TransferLog logs/test_access_log
+LogLevel warn
+SSLEngine on
+SSLProtocol all -SSLv2
+SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:!MEDIUM:!LOW
+SSLCertificateFile /key1/amar.com.crt
+SSLCertificateKeyFile /key1/amar.com.key
+
+SetEnvIf User-Agent ".*MSIE.*" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+CustomLog logs/ssl_request_log \
+          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"</pre>
+<p style="text-align: left;"><strong>mod_jk.conf</strong></p>
+<pre># Specify the filename of the mod_jk lib
+LoadModule jk_module modules/mod_jk.so
+################################################
+# Should mod_jk send SSL information to Tomcat (default is On)
+JkExtractSSL On
+# What is the indicator for SSL (default is HTTPS)
+JkHTTPSIndicator HTTPS
+# What is the indicator for SSL session (default is SSL_SESSION_ID)
+JkSESSIONIndicator SSL_SESSION_ID
+# What is the indicator for client SSL cipher suit (default is SSL_CIPHER)
+JkCIPHERIndicator SSL_CIPHER
+# What is the indicator for the client SSL certificated (default is SSL_CLIENT_CERT)
+JkCERTSIndicator SSL_CLIENT_CERT
+###############################################
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [L,R]
+###############################################
+# Where to find workers.properties
+JkWorkersFile conf/workers.properties
+# Where to put jk logs
+JkLogFile logs/mod_jk.log
+# Set the jk log level [debug/error/info]
+JkLogLevel info
+# Select the log format
+JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
+# JkOptions indicates to send SSK KEY SIZE
+JkOptions +ForwardKeySize +ForwardURICompat -ForwardDirectories
+# JkRequestLogFormat
+JkRequestLogFormat "%w %V %T"
+JkMount / loadbalancer
+JkMount /* loadbalancer
+###########################################################</pre>
+<p style="text-align: left;"><strong>Workers.properties</strong></p>
+<pre># Worker list
+worker.list=loadbalancer
+# Define Node1
+worker.node1.port=7020
+worker.node1.host=localhost
+worker.node1.type=ajp13
+worker.node1.lbfactor=1
+#worker.node1.local_worker=1 (1)
+worker.node1.cachesize=10
+# Define Node2
+worker.node2.port=8011
+worker.node2.host=172.16.34.59
+worker.node2.type=ajp13
+worker.node2.lbfactor=1
+#worker.node2.local_worker=1 (1)
+worker.node2.cachesize=10
+# Load-balancer
+worker.loadbalancer.type=lb
+worker.loadbalancer.balanced_workers=node1, node2
+worker.loadbalancer.sticky_session=1
+worker.loadbalancer.local_worker_only=1</pre>

@@ -1,0 +1,149 @@
+<p>Prerequisites : - Git Client,  gcc-c++,  zlib-devel, openssl<br />
+System requirement : - 2 CPU, 4 GB RAM, 15 GB disk space.<br />
+Steps :- </p>
+<p>1> Installing scons-2.2.0</p>
+<p>Download scons-2.2.0 from http://www.scons.org/download.php</p>
+<pre>
+wget http://prdownloads.sourceforge.net/scons/scons-2.2.0.tar.gz
+under /usr/src
+tar -xvf scons-2.2.0
+cd scons-2.2.0
+python setup.py install --standard-lib
+</pre>
+<p>2> Installing Mongodb</p>
+<pre>
+git clone https://github.com/mongodb/mongo.git
+cd mongo
+git checkout r2.4.4
+copy the folder /opt/mongo
+time scons all #(takes an hour or more)
+mkdir mongo-2.4.4
+ln -s mongo-2.4.4 current
+cd current
+mkdir db
+scons --prefix=/opt/mongo/mongo-2.4.4 install
+</pre>
+<p>Now need to Add Mongo binaries to PATH</p>
+<pre>
+ln -s /opt/mongo/current/bin/bsondump /usr/bin/bsondump
+ln -s /opt/mongo/current/bin/mongo /usr/bin/mongo
+ln -s /opt/mongo/current/bin/mongod /usr/bin/mongod
+ln -s /opt/mongo/current/bin/mongodump /usr/bin/mongodump
+ln -s /opt/mongo/current/bin/mongoexport /usr/bin/mongoexport
+ln -s /opt/mongo/current/bin/mongofiles /usr/bin/mongofiles
+ln -s /opt/mongo/current/bin/mongoimport /usr/bin/mongoimport
+ln -s /opt/mongo/current/bin/mongooplog /usr/bin/mongooplog
+ln -s /opt/mongo/current/bin/mongoperf /usr/bin/mongoperf
+ln -s /opt/mongo/current/bin/mongorestore /usr/bin/mongorestore
+ln -s /opt/mongo/current/bin/mongos /usr/bin/mongos
+ln -s /opt/mongo/current/bin/mongostat /usr/bin/mongostat
+ln -s /opt/mongo/current/bin/mongotop /usr/bin/mongotop
+</pre>
+<p>Copy configuration file and startup script</p>
+<pre>
+cp /opt/mongo/rpm/mongod.conf /etc/mongod.conf
+cp /opt/mongo/rpm/init.d-mongod /etc/init.d/mongodb
+</pre>
+<p>Installation completed </p>
+<p>Checking MongoDB Version:-</p>
+<pre>
+MongoDBPOC:/usr/bin # mongo --version
+MongoDB shell version: 2.4.4
+</pre>
+<p>Example of Mongodb.conf file.</p>
+<pre>
+logpath=/opt/mongo/current/logs/mongod.log
+logappend=true
+port = 27017
+dbpath=/opt/mongo/current/db
+pidfilepath = /opt/mongo/current/mongod.pid
+rest = true
+fork = true
+</pre>
+<p>Start / Stop MongoDB :-</p>
+<pre>
+/etc/init.d/mongodb start/stop/restart
+</pre>
+<p>Manual Start Command: - </p>
+<pre>
+mongod --auth --config /etc/mongod.conf  --dbpath /opt/mongo/current/db  --logpath /opt/mongo/current/logs/mongodb.log --logappend
+</pre>
+<p>User Creation in Mongodb :- </p>
+<pre>
+#mongo
+> use admin
+switched to db admin
+> db.addUser('admin', 'admin1234')
+> db.auth('admin', 'admin1234') 
+1
+</pre>
+<p>Example of /etc/init.d/mongodb file :-</p>
+<pre>
+PRO=`ps -ef | grep mongod | grep -v grep | grep -v "/etc/init.d/mongodb" |  awk '{print $2}'`
+CONFIGFILE="/etc/mongod.conf"
+DBPATH="/opt/mongo/current/db"
+LOGPATH="/opt/mongo/current/logs/mongodb.log"
+PID=`cat /opt/mongo/current/mongod.pid`
+start()
+{
+        if [ "$PID" != 0 ];
+        then
+        echo "Mongodb is already Running with pid" $PRO
+        else
+        echo -n $"Starting mongod: "
+        mongod -auth --config $CONFIGFILE  --dbpath $DBPATH  --logpath $LOGPATH --logappend
+        echo
+        fi
+}
+stop()
+{
+  echo -n $"Stopping mongod: "
+  kill -9 $PID
+  sleep 1
+  echo 0 > /opt/mongo/current/mongod.pid
+  echo "********************** Stopped"
+}
+restart () {
+        echo -n $"Stopping mongod: "
+        kill -9 $PID
+        sleep 1
+        echo 0 > /opt/mongo/current/mongod.pid
+        echo "********************** Stopped"
+        echo -n $"Starting mongod: "
+        mongod --auth --config $CONFIGFILE  --dbpath $DBPATH  --logpath $LOGPATH --logappend
+        echo
+}
+status ()
+{
+        if [ "$PID" = "$PRO" ];
+        then
+        echo "Mongodb is Running with pid" $PID
+        else
+        echo "Mongodb Down"
+        fi
+}
+ulimit -n 12000
+RETVAL=0
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f /var/lock/subsys/mongod ] && restart || :
+    ;;
+  status)
+     status
+     RETVAL=$?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    RETVAL=1
+esac
+exit $RETVAL
+</pre>

@@ -1,0 +1,88 @@
+﻿<p style="text-align: center;" align="center"><strong>Configure DNS</strong></p>
+<p> Rpm needs à bind-9.3.3-7.el5</p>
+<p>1. service should be started with command.</p>
+<pre> /etc/init.d/named start</pre>
+<p>To start the service on booting time run the below command.</p>
+<pre> chkconfig named on </pre>
+<p>3. enter the nameserver in /etc/resolve.conf file<br />
+as nameserver 172.16.34.60</p>
+<p>4. if you want to use chroot security for ur dns then install the chroot rpm for your linux. bind-chroot-9.2.3-13<br />
+5. the main configuration file is named.conf file which present in the /etc location /etc/named.conf if it is not present then copy it from /usr/share/doc/bind-9.3.3/sample/etc/named.conf named.conf to /etc/named.conf file contain the zone file information.</p>
+<p>Cache server<br />
+6. If u want to configure cache server then u have to copy another file from /usr/share/doc/bind-9.3.3/sample/etc/named.rfc1912.zones this file is call by keyword include which is present in named.conf file under view "localhost_resolver" as a include "/etc/named.rfc1912.zones";</p>
+<pre>view "localhost_resolver"
+{
+/* This view sets up named to be a localhost resolver ( caching only nameserver ).
+ * If all you want is a caching-only nameserver, then you need only define this view:
+ */
+        match-clients           { localhost; };
+        match-destinations      { localhost; };
+        recursion yes;
+        # all views must contain the root hints zone:
+        include "/etc/named.root.hints";
+
+        /* these are zones that contain definitions for all the localhost
+         * names and addresses, as recommended in RFC1912 - these names should
+         * ONLY be served to localhost clients:
+         */
+        include "/etc/named.rfc1912.zones";
+};</pre>
+<p>Authoritative or regular DNS server</p>
+<p>7. In regular dns configuration you don’t need to configure localhost resolver view and you don’t need the named.rfc1912.zones file in this case we have to configure only named.conf file</p>
+<pre>acl "safe-subnet" { 172.16.33.0/23; };
+view "internal"
+{
+/* This view will contain zones you want to serve only to "internal" clients
+   that connect via your directly attached LAN interfaces - "localnets" .
+ */
+        match-clients           { localnets; safe-subnet; };
+        match-destinations      { localnets; safe-subnet; };
+        recursion yes;
+        // all views must contain the root hints zone:
+        include "/etc/named.root.hints";
+
+        // include "named.rfc1912.zones";
+        // you should not serve your rfc1912 names to non-localhost clients.
+
+        // These are your "authoritative" internal zones, and would probably
+        // also be included in the "localhost_resolver" view above :
+
+        zone "34.16.172.in-addr.arpa" IN {
+                type master;
+                allow-query { any; };
+                file "172-16-33.zone";
+                allow-update { none; };
+        };
+
+        zone "amar.com" IN {
+                type master;
+                allow-query { any; };
+                file "amar.zone";
+        };
+
+};</pre>
+<p>Reverse lookup configuration</p>
+<pre>  zone "34.16.172.in-addr.arpa" IN {
+                type master;
+                allow-query { any; };
+                file "172-16-33.zone";
+                allow-update { none; };
+        };</pre>
+<p>Forward lookup configuration</p>
+<pre>zone "amar.com" IN {
+                type master;
+                allow-query { any; };
+                file "amar.zone";
+        };</pre>
+<p>By default zone files are reside in /var/named/ directory if the sample files are not present then you can copy it from /usr/share/doc/bind-9.3.3/sample/var/ to /etc/named/</p>
+<p><strong>Forward Zone file format</strong></p>
+<p><strong>Amar.zone</strong></p>
+<p><a href="http://amarshaw.com/wp-content/uploads/2012/04/zone.jpg"><img class=" wp-image-90 alignnone" title="zone" src="assets/zone-300x131.jpg" alt="" width="558" height="130" /></a></p>
+<p><strong>Reverse zone file</strong><br />
+<strong>172-16-34.zone</strong></p>
+<p><a href="http://amarshaw.com/wp-content/uploads/2012/04/rzone.jpg"><img class="alignleft  wp-image-88" title="rzone" src="assets/rzone-300x132.jpg" alt="" width="570" height="244" /></a><br />
+<strong>Chroot configuration</strong></p>
+<p>For chroot configuration we have to place named.conf file in location</p>
+<pre> /var/named/chroot/etc/</pre>
+<p>And zone files should be placed at /var/named/chroot/var/named/ location</p>
+<p>Just restart the named service.</p>

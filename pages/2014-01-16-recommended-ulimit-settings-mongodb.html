@@ -1,0 +1,20 @@
+
+<p>Recommended ulimit settings for mongodb</p>
+<pre>
+ulimit -f unlimited
+ulimit -t unlimited
+ulimit -v unlimited
+ulimit -n 64000
+ulimit -m unlimited
+ulimit -u 32000
+</pre>
+<p>Add this in bash profile.</p>
+<pre>
+#cat /etc/bash.bashrc.local
+ulimit -f unlimited
+ulimit -t unlimited
+ulimit -v unlimited
+ulimit -n 6400
+ulimit -m unlimited
+ulimit -u 32000
+</pre>

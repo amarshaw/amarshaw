@@ -1,0 +1,16 @@
+
+<p style="text-align: center;"><span style="text-decoration: underline;"><strong>SUDO</strong></span></p>
+<p>Install sudo rpm<br />
+Type visudo to edit /etc/sudoers file</p>
+<pre>vi /etc/sudoers
+## Allow root to run any commands anywhere
+## Allow root to run any commands anywhere
+root    ALL=(ALL)       ALL
+shaw    ALL=(ALL)       ALL
+amar    ALL=/etc/aaa,/bin/vi,/bin/rm</pre>
+<p>Add user permission like above example.<br />
+Test it by login through amar / shaw user.</p>
+<pre>sudo vi /etc/aaa
+sudo rm /etc/aaa
+sudo /sbin/reboot</pre>
+<p>Shaw user will do the reboot as only shaw user have the full permission in this scenario.</p>

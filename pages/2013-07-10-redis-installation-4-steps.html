@@ -1,0 +1,39 @@
+
+<p>Step 1 > Download the latest version of Redis from http://download.redis.io site.</p>
+<p>wget http://download.redis.io/redis-stable.tar.gz<br />
+tar -xzvf redis-stable.tar.gz (extract the tar file.)<br />
+cd redis-stable<br />
+make ( Build)<br />
+make test ( Test Build) </p>
+<p>Step 2 > Put the executable binaries to /usr/local/bin/</p>
+<pre>
+cd redis-stable/src
+cp redis-server /usr/local/bin/
+cp redis-cli /usr/local/bin/
+</pre>
+<p>Step 3> Create Redis Service in /etc/init.d/</p>
+<pre>
+cd redis-stable
+mkdir /etc/redis
+mkdir /var/redis
+mkdir /var/redis/6379
+cp utils/redis_init_script /etc/init.d/redis
+cp redis.conf /etc/redis/redis.conf
+</pre>
+<p>Now put the below mention changes in /etc/redis/redis.conf<br />
+<a href="http://amarshaw.com/redis-master-slave-installation-5-steps/r1/#main" rel="attachment wp-att-352"><img src="assets/R1-300x194.jpg" alt="R1" width="300" height="194" class="alignnone size-medium wp-image-352" /></a></p>
+<p>And in /etc/init.d/redis file.<br />
+<a href="http://amarshaw.com/redis-master-slave-installation-5-steps/r2/#main" rel="attachment wp-att-353"><img src="assets/R2-300x143.jpg" alt="R2" width="300" height="143" class="alignnone size-medium wp-image-353" /></a></p>
+<p>Installation completed</p>
+<p>We can now start / stop the redis service.</p>
+<pre>
+/etc/init.d/redis start
+/etc/init.d/redis stop
+</pre>
+<p><a href="http://amarshaw.com/redis-master-slave-installation-5-steps/r3/#main" rel="attachment wp-att-348"><img src="assets/R3-300x56.jpg" alt="R3" width="300" height="56" class="alignnone size-medium wp-image-348" /></a></p>
+<p>Step 4> Testing of Redis Server.</p>
+<p>We can check whether redis is running or not through redis-cli ping command</p>
+<p>redis-cli ping ( Redis not running )</p>
+<p><a href="http://amarshaw.com/redis-master-slave-installation-5-steps/r5/#main" rel="attachment wp-att-350"><img src="assets/R5-300x27.jpg" alt="R5" width="300" height="27" class="alignnone size-medium wp-image-350" /></a></p>
+<p>redis-cli ping ( getting PONG means Redis running )</p>
+<p><a href="http://amarshaw.com/redis-master-slave-installation-5-steps/r6/#main" rel="attachment wp-att-351"><img src="assets/R6-300x77.jpg" alt="R6" width="300" height="77" class="alignnone size-medium wp-image-351" /></a></p>

@@ -1,0 +1,28 @@
+﻿
+<p>How to check which port is using port 80 ?</p>
+<pre>
+netstat -o -n -a | findstr 0.0:80
+</pre>
+<p><a href="http://amarshaw.com/windows/port-80-problems-running-apache-windows/w1/#main" rel="attachment wp-att-402"><img src="assets/w1-300x51.jpg" alt="w1" width="300" height="51" class="alignnone size-medium wp-image-402" /></a><br />
+The Last field shows the PID.<br />
+Now check in task manager, which process is PID 4.<br />
+<a href="http://amarshaw.com/windows/port-80-problems-running-apache-windows/w2/#main" rel="attachment wp-att-391"><img src="assets/w2-300x54.jpg" alt="w2" width="300" height="54" class="alignnone size-medium wp-image-391" /></a><br />
+There are a number of well-known Windows programs which use port 80:<br />
+IIS<br />
+SQL Server Reporting Services<br />
+Other windows base wed servers like Iplanet, some apps like chat apps like skype, video calling tools.<br />
+You can stop all the service through “services.msc” console and set it manual.<br />
+NT Kernel & System (Microsoft-HTTPAPI/2.0) :-<br />
+NT Kernel & System is an important service and stopping it will probably cause issue to you Windows in a blue-screen like “fatal error”. Therefore, follow the below mention steps:</p>
+<pre>
+telnet 127.0.0.1 80
+</pre>
+<p>It will put you in a blue screen.<br />
+<a href="http://amarshaw.com/windows/port-80-problems-running-apache-windows/w3/#main" rel="attachment wp-att-392"><img src="assets/w3-300x70.jpg" alt="w3" width="300" height="70" class="alignnone size-medium wp-image-392" /></a><br />
+Not type “GET” and press enter  (GET will written in black color so you can see it in your display).<br />
+You will get something like this.<br />
+<a href="http://amarshaw.com/windows/port-80-problems-running-apache-windows/w4/#main" rel="attachment wp-att-401"><img src="assets/w4.jpg" alt="w4" class="alignnone size-medium wp-image-401" /></a><br />
+You will see a line like "Server: Microsoft-HTTPAPI/2.0", it means Microsoft-HTTPAPI/2.0 is listening to port 80.<br />
+Service name for Microsoft-HTTPAPI/2.0 is Web Deployment Agent Service, which is deployed with WebMatrix.<br />
+You need to stop it from “services.msc” and need to set it manual, so that it will not start again after next reboot.<br />
+<a href="http://amarshaw.com/windows/port-80-problems-running-apache-windows/w5/#main" rel="attachment wp-att-394"><img src="assets/w5-300x19.jpg" alt="w5" width="300" height="19" class="alignnone size-medium wp-image-394" /></a></p>

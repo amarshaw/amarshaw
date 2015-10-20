@@ -1,0 +1,34 @@
+<p style="text-align: center;"><span style="text-decoration: underline;"><strong>YUM Server Configuration in RHEL5</strong></span></p>
+<p>Step 1: install createrepo.rpm from the DVD for creating repository.</p>
+<pre># rpm -ivh createrepo.rpm</pre>
+<p>Step 2: copy all rpms form the DVD and past over the hard disk share them up in NFS.</p>
+<pre>#createrepo /path-to-rpms
+eg: createrepo /var/ftp/pub</pre>
+<p>It will take several minutes that depends upon the number of rpms that you have copied from the DVD specified and the configuration of your machine.<br />
+Step 3: Touch the following file with the contents specified.</p>
+<pre>#vi /etc/yum.repos.d/somename.repo
+[base]
+name=friendly name
+baseurl=file:///var/ftp/pub
+enabled=1
+gpgcheck=0</pre>
+<p>Step 4: Use the yum server in the same machine because server is the first client of the same service most of the times<br />
+the following command is used for install gcc compiler</p>
+<pre>#yum install gcc</pre>
+<p>Note: Remember ftp or http service has to be running in the yum server.<br />
+Client configuration:<br />
+Step 1: Touch the following file with the contents specified in case of ftp server is running in the server machine</p>
+<pre>#vi /etc/yum.repos.d/somename.repo
+[base]
+name=friendly name
+baseurl=ftp:///192.168.0.254/pub
+enabled=1
+gpgcheck=0</pre>
+<p>Step 2:<br />
+The following command is used for install gcc compiler</p>
+<pre>#yum install gcc</pre>
+<p>these are the commands for removing the service specified</p>
+<pre>#yum erase gcc
+#yum remove gcc
+for mail server
+#yum install sendmail</pre>

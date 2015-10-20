@@ -1,0 +1,14 @@
+
+<pre>cd  /AmarData/TBMain/
+DEST_DIR=/TB-AMAR/AR/POSTING
+DEST_DIR1=/TB-AMAR/AR/REVERSAL
+SOURCE_DIR=/AmarData/TBReserve
+USER=ftpdata
+PASSWORD="Upload"
+dat=`date +%d%m%Y --date='1 days ago'`
+FILE=ARM*$dat*
+FILE1=ARR*$dat*
+FILE2=CM$dat*
+FILE3=CR$dat*
+REMOTE_BOX=172.16.31.20
+ftp -niv $REMOTE_BOX &lt;</pre>

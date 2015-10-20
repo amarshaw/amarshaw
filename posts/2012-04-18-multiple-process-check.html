@@ -1,0 +1,46 @@
+﻿
+<pre>typeset -i flag=0
+typeset -i flag1=0
+
+echo -e "========== PVIEW PROCESSES ARE RUNNING =========="
+date
+
+var=`pview | wc -l`
+
+while [ $flag1 -eq 0 ]
+do
+
+        while [ $var -eq 51 ]
+        do
+                echo -e "\n\n CAPITAL RUNNING [CM-51]:==)"
+                echo -e "-" `date  +"%r  %d  %h  (%A)"`
+                sleep 3
+                var=`pview | wc -l`
+        done
+
+        flag=1
+
+        while [ $flag -eq 1 ]
+        do
+                echo -e "PLEASE PAY ATTENTIONS... <pre wp-pre-tag-0></pre>07"
+                echo -e "PRESS ANY INTERRUPT (^c) KEY TO COME OUT..<pre wp-pre-tag-0></pre>07"
+                echo -e "\n The value of FLAG = $flag\n"
+                echo -e " CM Processes [51]  = $var\n"
+                sleep 3
+                echo -e "=================================="
+                  ### Process name in this file which need to monitor ###                
+
+                  Whichprocess.sh
+                echo -e "==================================\n"
+                var=`pview | wc -l`
+                if [ $var -eq 51 ]
+                        then
+                        flag=0
+                        echo -e "\n The value of FLAG = $flag\n"
+                        echo -e " The value of VAR (Processes) = $var\n"
+                fi
+        done
+
+echo -e "\n\n Now Normal .............Cool******************"
+
+done</pre>

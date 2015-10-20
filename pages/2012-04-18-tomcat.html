@@ -1,0 +1,367 @@
+﻿<p style="text-align: center;" align="center"><strong><span style="text-decoration: underline;">Apache2.2 Tomcat 5.5 Document</span></strong></p>
+<p style="text-align: left;">Tomcat installation<br />
+JDK installation<br />
+Tomcat installation<br />
+Apache installation<br />
+Rpm httpd-2.2.<br />
+Connector configuration</p>
+<p style="text-align: left;"><strong>Tomcat</strong></p>
+<p style="text-align: left;"><strong>JDK installation</strong></p>
+<p style="text-align: left;">Download the latest jdk bin file from below link</p>
+<pre>http://www.oracle.com/technetwork/java/javase/downloads/index.html</pre>
+<p style="text-align: left;">copy it in linux server in any directory</p>
+<p style="text-align: left;">in my case I had copy it in /tomcat/java/ folder after copy run the below command for extraction.</p>
+<pre>./jdk-6u23-linux-i586.bin</pre>
+<p style="text-align: left;">It will create a folder jdk1.6.0_23 and extract all the files into this folder<br />
+Now we have to define JAVA_HOME path in .bash_profile file.<br />
+Please find the below output of .bash_profile</p>
+<pre>vi .bash_profile</pre>
+<pre>###################################################################
+PATH=$PATH:$HOME/bin
+
+export PATH
+unset USERNAME
+JAVA_HOME="/tomcat/java/jdk1.6.0_23"
+PATH=$JAVA_HOME/bin:$PATH
+
+CATALINA_HOME="/tomcat/apache-tomcat-5.5.32"
+export JAVA_HOME
+export CATALINA_HOME
+
+#####################################################################</pre>
+<p style="text-align: left;">After JAVA_HOME path declaration u hava to check whether java_home is working or not for this use below commands.</p>
+<pre>echo $JAVA_HOME
+/tomcat/java/jdk1.6.0_23/bin/java
+[root@amar1 ~]# which java
+/tomcat/java/jdk1.6.0_23/bin/java</pre>
+<p style="text-align: left;">It should be equal to path contain in JAVA_HOME</p>
+<p style="text-align: left;">Or run</p>
+<pre>[root@amar1 ~]# java -version
+java version "1.6.0_23"
+Java(TM) SE Runtime Environment (build 1.6.0_23-b05)
+Java HotSpot(TM) Client VM (build 19.0-b09, mixed mode, sharing)</pre>
+<p style="text-align: left;">Java version must be equal to version download by u.</p>
+<p style="text-align: left;">If every thing is working as explain above we can go to next step.</p>
+<p style="text-align: left;">Tomcat download and installation</p>
+<p style="text-align: left;">Download the tomcat from below location</p>
+<pre>http://tomcat.apache.org/download-55.cgi</pre>
+<p style="text-align: left;">and copy it into linux machine<br />
+or you can download it direct on linux machine using wget command</p>
+<p style="text-align: left;">move to directory where u want to install tomcat, in my case<br />
+I had install it into /tomcat folder into this directory run the below command</p>
+<pre>wget http://mirror.candidhosting.com/pub/apache/tomcat/tomcat-5/v5.5.32/bin/apache-tomcat-5.5.32.tar.gz</pre>
+<p style="text-align: left;">it will download the apache-tomcat-5.5.32.tar.gz<br />
+file in /tomcat directory then extract it using ./apache-tomcat-5.5.32.tar.gz</p>
+<p style="text-align: left;">download the admin package</p>
+<pre>wget http://mirror.candidhosting.com/pub/apache/tomcat/tomcat-5/v5.5.32/bin/apache-tomcat-5.5.32-admin.tar.gz</pre>
+<p style="text-align: left;">and extract it also with the same command ./apache-tomcat-5.5.32-admin.tar.gz</p>
+<p style="text-align: left;">define CATALINA_HOME</p>
+<p style="text-align: left;">we have to define the CATALINA_HOME variable in .bash_profile</p>
+<pre>###################################################################
+PATH=$PATH:$HOME/bin
+
+export PATH
+unset USERNAME
+JAVA_HOME="/tomcat/java/jdk1.6.0_23"
+PATH=$JAVA_HOME/bin:$PATH
+
+CATALINA_HOME="/tomcat/apache-tomcat-5.5.32"
+export JAVA_HOME
+export CATALINA_HOME
+
+#####################################################################</pre>
+<pre>Echo $CATALINA_HOME</pre>
+<p style="text-align: left;">Its out put should be same as u declare in .bash_profile</p>
+<p style="text-align: left;">Installation of tomcat is completed.</p>
+<p style="text-align: left;">START AND SHUTDOWN tomcat</p>
+<p style="text-align: left;">For Shutdown</p>
+<pre>$CATALINA_HOME/bin/shutdown.sh</pre>
+<p style="text-align: left;">For Startup</p>
+<pre>$CATALINA_HOME /bin/startup.sh</pre>
+<p style="text-align: left;">Now open the browser and type the url http://localhost:8080</p>
+<p style="text-align: left;">U will get the tomcat console on it by default it run on 8080 port</p>
+<p style="text-align: left;">But u can also change it to any port greater then 1024 no<br />
+By change it in $CATALINA_HOME/conf/server.xml file</p>
+<p style="text-align: left;">Userid and password for login into manager and admin console.</p>
+<p style="text-align: left;">For user and password we have to edit below file</p>
+<pre>$CATALINA_HOME/conf/conf/tomcat-users.xml</pre>
+<p style="text-align: left;">For login into admin console we have to define the role admin as below</p>
+<p style="text-align: left;">And append the line as follow :-</p>
+<p style="text-align: left;">For login onto manager console we have to do it as below:-</p>
+<p style="text-align: left;">User who having a role of manager can access into manager console</p>
+<p style="text-align: left;"><strong>WAR Deployment:-</strong></p>
+<p style="text-align: left;">There are lots of method for war deployment on tomcat I will discuss here only two of them, i.e. through manager console, direct copy to webapps, client deplorer (TDS)</p>
+<p style="text-align: left;"><strong>Manager console:-</strong></p>
+<p style="text-align: left;">You can access the manager console by entering the http://localhost:8080 or you can access it some another port what u have define on server.xml and the server ip using http://172.16.34.60:8080/ where 172.16.34.60 is server ip.then login into manager console using username and password define in “tomcat-users.xml” where role must be manager.</p>
+<p style="text-align: left;">Then you have to browse the war file and deploy it.</p>
+<p style="text-align: left;">Direct Copy to webapps:-</p>
+<p style="text-align: left;">In direct copy method you have to copy the war file into webapps path which present at $CATALINA_HOME/webapps and then restart the tomcat.<br />
+Apache configuration using single instance:-</p>
+<p style="text-align: left;">Connector using :- mod_proxy_ajp</p>
+<p style="text-align: left;">Add the below line just after the LoadModule directives this line define the location of mod_proxy_ajp.conf which contain the tomcat request redirection configurations.</p>
+<pre>Include /etc/httpd/conf/mod_proxy_ajp.conf</pre>
+<p style="text-align: left;">Create the mod_proxy_ajp.conf as below</p>
+<pre>########################################################################
+ProxyRequests Off
+
+Order deny,allow
+Allow from all
+
+ProxyPass / http://172.16.34.60:7002/Test
+########################################################################</pre>
+<p style="text-align: left;">Explanation—</p>
+<p style="text-align: left;">Where http://172.16.34.60:7002/Test is the url where this application is running on tomcat.</p>
+<p style="text-align: left;">ProxyPass / http://172.16.34.60:7002/Test this directive redirect the port 80 request listen by apache to that url which is running on tomcat..</p>
+<p style="text-align: left;">Installing more then one instance on tomcat :-</p>
+<p style="text-align: left;"> Installing more then one instance on same server<br />
+ Installing more then one instance on two server</p>
+<p style="text-align: left;">Installing more then one instance on same server: --</p>
+<p style="text-align: left;">For creating more then one instance we have to create two directory under the $CATALINA_HOME.</p>
+<p style="text-align: left;">In Our case we have created two directory amar and amar1 under the $CATALINA_HOME like the below one.</p>
+<pre>#############################################################
+[root@amar1 conf]# cd $CATALINA_HOME
+[root@amar1 apache-tomcat-5.5.32]# ll
+total 108
+drwxr-xr-x 7 root root 4096 Feb 9 11:42 amar
+drwxrwxrwx 4 root root 4096 Feb 9 09:52 bin
+drwxrwxrwx 6 root root 4096 Jan 24 02:13 common
+drwxrwxrwx 3 root root 4096 Feb 10 11:56 conf
+-rwxrwxrwx 1 root root 40487 Jan 24 02:14 LICENSE
+drwxrwxrwx 2 root root 4096 Feb 8 10:44 logs
+-rwxrwxrwx 1 root root 760 Jan 24 02:14 NOTICE
+-rwxrwxrwx 1 root root 9082 Jan 24 02:13 RELEASE-NOTES
+-rwxrwxrwx 1 root root 8042 Jan 24 02:14 RUNNING.txt
+drwxrwxrwx 5 root root 4096 Jan 24 02:13 server
+drwxrwxrwx 4 root root 4096 Jan 24 02:13 shared
+drwxrwxrwx 3 root root 4096 Feb 3 12:13 temp
+drwxr-xr-x 7 root root 4096 Feb 9 10:48 amar1
+drwxrwxrwx 10 root root 4096 Feb 4 11:13 webapps
+drwxrwxrwx 3 root root 4096 Feb 3 12:12 work
+[root@amar1 apache-tomcat-5.5.32]#
+#############################################################</pre>
+<p style="text-align: left;">Now copy the below directory and files from $CATALINA_HOME folder to amar and amar1 directory</p>
+<p style="text-align: left;">conf logs shutdown.sh startup.sh temp webapps work catalina.sh</p>
+<p style="text-align: left;">and u can find the catalina.sh shutdown.sh startup.sh in $CATALINA_HOME/bin folder.</p>
+<p style="text-align: left;">Change the name of Catalina.sh to its directory name i.e in amar1 directory make it to amar1.sh and in amar directory make it to amar.sh.</p>
+<p style="text-align: left;">Catalina.sh</p>
+<p style="text-align: left;">You have to define CATALINA_BASE in this file u can also define the heap size using the below parameters.</p>
+<p style="text-align: left;">Where JAVA_OPTS define the heap size JAVA_HOME define the java home and CATALINA_HOME define the home directory for tomcat CATALINA_BASE define the path for another instance, all of them which are define below are optional except CATALINA_BASE which is compulsory.</p>
+<pre>JAVA_HOME="/Tomcat/jdk1.6.0_23"
+JAVA_OPTS="-Xmx128m -Xms128m"
+CATALINA_HOME="/Tomcat/apache-tomcat-5.5.32"
+CATALINA_BASE="/Tomcat/apache-tomcat-5.5.32/amar"
+export JAVA_HOME JAVA_OPTS CATALINA_HOME CATALINA_BASE</pre>
+<p style="text-align: left;">For more then one instance we have to define the CATALINA_BASE Varaible which define the path to our new instances folder like amar1 and amar.</p>
+<p style="text-align: left;">Just go to directory amar1 and define the CATALINA_BASE in amar1.sh as given below.</p>
+<pre>export CATALINA_BASE="/tomcat/apache-tomcat-5.5.32/amar1"</pre>
+<p style="text-align: left;">amar1.sh output</p>
+<pre>###################################################################
+# CATALINA_PID (Optional) Path of the file which should contains the pid
+# of catalina startup java process, when start (fork) is used
+#
+# $Id: catalina.sh 1040548 2010-11-30 14:48:26Z markt $
+# -----------------------------------------------------------------------------
+
+export CATALINA_BASE="/tomcat/apache-tomcat-5.5.32/amar1"
+
+# OS specific support. $var _must_ be set to either true or false.
+cygwin=false
+os400=false
+darwin=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+OS400*) os400=true;;
+Darwin*) darwin=true;;
+
+#####################################################################</pre>
+<p style="text-align: left;">As the same way define the CATALINA_BASE in amar.sh in amar directory.</p>
+<p style="text-align: left;">Changes in startup and shutdown script –</p>
+<p style="text-align: left;">In startup and shutdown script define the EXECUTABLE script as given below—</p>
+<p style="text-align: left;">In amar1 directory define it as EXECUTABLE=amar1.sh<br />
+In amar directory define it as EXECUTABLE=amar,sh</p>
+<p style="text-align: left;"><strong>server.xml :--</strong></p>
+<p style="text-align: left;">location $CATALINA_HOME/conf/server.xml<br />
+and<br />
+$CATALINA_BASE/conf/server.xml<br />
+Where CATALINA_BASE define the new instance home directory like amar and amar1 in my case.</p>
+<p style="text-align: left;">server.xml is the main configuration file in which we define tomcat listen port listen ip and ajp listen port and listen ip and jvmroute name it also define the shutdown port.</p>
+<p style="text-align: left;">i.e find the below example file</p>
+<p style="text-align: left;">the shutdown port is define as below in server.xml file</p>
+<p style="text-align: left;">The tomcat listen port is define as below in this case it is 7002.</p>
+<pre>maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+enableLookups="false" redirectPort="8443" acceptCount="100"
+connectionTimeout="20000" disableUploadTimeout="true" /&gt;
+
+enableLookups="false" redirectPort="8443" protocol="AJP/1.3" /&gt;</pre>
+<p style="text-align: left;">jvmRoute is define here we define jvm route in case of loadbalancing in this case jvmroute name is node2 and it listen on localhost</p>
+<p style="text-align: left;">In the same manner we have to define the server.xml file in another instance but all the port must be different. and jvm route must be different because apache to tomcat connecter using jvmroute to redirect the request to provide the loadbalancing.</p>
+<p style="text-align: left;">Apache configuration:--</p>
+<p style="text-align: left;">Connecter – mod_jk<br />
+In http.conf file place the Include directive<br />
+Define it just underneath the LoadModule directives</p>
+<pre>Include /etc/httpd/conf/mod_jk.conf</pre>
+<p style="text-align: left;">Download the source for mod_jk and compile it<br />
+And read the build.txt for further info about it.</p>
+<p style="text-align: left;">There are two configuration files :-</p>
+<pre>mod_jk.conf
+workers.properties</pre>
+<p style="text-align: left;">create a mod_jk.conf file at /etc/httpd/conf/ which is we define in httpd.conf file.</p>
+<p style="text-align: left;"><strong>mod_jk.conf file :-</strong></p>
+<pre>############################################################
+# Load mod_jk module
+# Specify the filename of the mod_jk lib
+LoadModule jk_module modules/mod_jk.so
+################################################
+# Where to find workers.properties
+JkWorkersFile conf/workers.properties
+# Where to put jk logs
+JkLogFile logs/mod_jk.log
+# Set the jk log level [debug/error/info]
+JkLogLevel info
+# Select the log format
+JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
+# JkOptions indicates to send SSK KEY SIZE
+JkOptions +ForwardKeySize +ForwardURICompat -ForwardDirectories
+# JkRequestLogFormat
+JkRequestLogFormat "%w %V %T"
+JkMount / loadbalancer
+JkMount /* loadbalancer
+###################################</pre>
+<p style="text-align: left;">Create the workers.properties file at the same location we declare it in mod_jk.conf file in our case it present at under /etc/httpd/conf/ directory</p>
+<p style="text-align: left;"><strong>Workers.properties</strong></p>
+<pre>########################################################################
+# Worker list
+worker.list=loadbalancer
+# Define Node1
+worker.node1.port=7020
+worker.node1.host=localhost
+worker.node1.type=ajp13
+worker.node1.lbfactor=1
+#worker.node1.local_worker=1 (1)
+worker.node1.cachesize=10
+# Define Node2
+worker.node2.port=7021
+worker.node2.host= localhost
+worker.node2.type=ajp13
+worker.node2.lbfactor=1
+#worker.node2.local_worker=1 (1)
+worker.node2.cachesize=10
+# Load-balancer
+worker.loadbalancer.type=lb
+worker.loadbalancer.balanced_workers=node1, node2
+worker.loadbalancer.sticky_session=1
+worker.loadbalancer.local_worker_only=1
+########################################################################</pre>
+<p style="text-align: left;">In this case node1 and node2 are present on the same machine where node1 and node2 are ajproute name define in server.xml file present at there respective instance. In node1 ajp is listen on localhost and port is 7020 in node2 it listen on localhost and port is 7021.</p>
+<p style="text-align: left;">Where worker.loadbalancer.type=lb is define the loadbalancing algorithm in this case 1b define the roundrobin algorithm.</p>
+<p style="text-align: left;">Where worker.loadbalancer.sticky_session=1 define the session sticky ness.</p>
+<p style="text-align: left;">Installing more then one instance on two server--</p>
+<p style="text-align: left;">To configure a tomcat instance on two servers we have to run it on another machine and make the changed in workers..properties file as given below.</p>
+<p style="text-align: left;"><strong>Workers.properties</strong></p>
+<pre>########################################################################
+# Worker list
+worker.list=loadbalancer
+# Define Node1
+worker.node1.port=7020
+worker.node1.host=localhost
+worker.node1.type=ajp13
+worker.node1.lbfactor=1
+#worker.node1.local_worker=1 (1)
+worker.node1.cachesize=10
+# Define Node2
+worker.node2.port=8011
+worker.node2.host=172.16.34.59
+worker.node2.type=ajp13
+worker.node2.lbfactor=1
+#worker.node2.local_worker=1 (1)
+worker.node2.cachesize=10
+# Load-balancer
+worker.loadbalancer.type=lb
+worker.loadbalancer.balanced_workers=node1, node2
+worker.loadbalancer.sticky_session=1
+worker.loadbalancer.local_worker_only=1
+########################################################################</pre>
+<p style="text-align: left;">In this file node1 and node2 are jvmRoute name what we have define in server.xml file.In my case node1 is present at the same machine and node2 is present at 172.16.34.59 machine where 172.16.34.59 is the ip on which ajp protocol is listen and port is 8011 for ajp which is define on server.xml file. In node1 which is present at the same machine ajp is listening on localhost and port is 7020.</p>
+<p style="text-align: left;">We have to made two changed on server.xml file given below.</p>
+<p style="text-align: left;">enableLookups="false" redirectPort="8443" protocol="AJP/1.3" /&gt;</p>
+<p style="text-align: left;">if address keyword is not define then it will listen on localhost by default.</p>
+<p style="text-align: left;">http://www.wellho.net/archives/2009/02/sticky_sessions.html</p>
+<p style="text-align: left;">http://raibledesigns.com/tomcat/</p>
+<p style="text-align: left;">http://www.kandysoftwareinc.com/tech-articles/apache-tomcat-cluster-load-balancing-using-mod_jk</p>
+<p style="text-align: left;">Apache-tomcat with ssl:-</p>
+<p style="text-align: left;">Ssl on apache lavel :-</p>
+<p style="text-align: left;">We have to configure ssl.conf file present at /etc/httpd/conf.d/ and we have to make some changes for mod_jk and httpd.conf file.</p>
+<p style="text-align: left;"><strong>ssl.conf</strong></p>
+<pre>ServerName 172.16.34.59:443
+JkMount /* loadbalancer
+ErrorLog logs/test_log
+TransferLog logs/test_access_log
+LogLevel warn
+SSLEngine on
+SSLProtocol all -SSLv2
+SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:!MEDIUM:!LOW
+SSLCertificateFile /key1/amar.com.crt
+SSLCertificateKeyFile /key1/amar.com.key
+
+SetEnvIf User-Agent ".*MSIE.*" \
+nokeepalive ssl-unclean-shutdown \
+downgrade-1.0 force-response-1.0
+CustomLog logs/ssl_request_log \
+"%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"</pre>
+<p style="text-align: left;"><strong>mod_jk.conf</strong></p>
+<pre># Specify the filename of the mod_jk lib
+LoadModule jk_module modules/mod_jk.so
+################################################
+# Should mod_jk send SSL information to Tomcat (default is On)
+JkExtractSSL On
+# What is the indicator for SSL (default is HTTPS)
+JkHTTPSIndicator HTTPS
+# What is the indicator for SSL session (default is SSL_SESSION_ID)
+JkSESSIONIndicator SSL_SESSION_ID
+# What is the indicator for client SSL cipher suit (default is SSL_CIPHER)
+JkCIPHERIndicator SSL_CIPHER
+# What is the indicator for the client SSL certificated (default is SSL_CLIENT_CERT)
+JkCERTSIndicator SSL_CLIENT_CERT
+###############################################
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [L,R]
+###############################################
+# Where to find workers.properties
+JkWorkersFile conf/workers.properties
+# Where to put jk logs
+JkLogFile logs/mod_jk.log
+# Set the jk log level [debug/error/info]
+JkLogLevel info
+# Select the log format
+JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
+# JkOptions indicates to send SSK KEY SIZE
+JkOptions +ForwardKeySize +ForwardURICompat -ForwardDirectories
+# JkRequestLogFormat
+JkRequestLogFormat "%w %V %T"
+JkMount / loadbalancer
+JkMount /* loadbalancer
+###########################################################
+~</pre>
+<p style="text-align: left;"><strong>Workers.properties</strong></p>
+<pre># Worker list
+worker.list=loadbalancer
+# Define Node1
+worker.node1.port=7020
+worker.node1.host=localhost
+worker.node1.type=ajp13
+worker.node1.lbfactor=1
+#worker.node1.local_worker=1 (1)
+worker.node1.cachesize=10
+# Define Node2
+worker.node2.port=8011
+worker.node2.host=172.16.34.59
+worker.node2.type=ajp13
+worker.node2.lbfactor=1
+#worker.node2.local_worker=1 (1)
+worker.node2.cachesize=10
+# Load-balancer
+worker.loadbalancer.type=lb
+worker.loadbalancer.balanced_workers=node1, node2
+worker.loadbalancer.sticky_session=1
+worker.loadbalancer.local_worker_only=1</pre>

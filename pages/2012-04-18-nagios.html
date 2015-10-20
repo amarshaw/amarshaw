@@ -1,0 +1,238 @@
+﻿<p style="text-align: center;" align="center"><p>Nagios Installation<br />
+First step :<br />
+Let me show you how to install nagios monitoring tool .<br />
+1- First install some tools : httpd, gcc, glib, glibc-common, gd and gd-devel etc</p>
+<pre>zypper in apache
+zypper in libjpeg-devel
+zypper in libpng-devel
+zypper in zlib-devel
+zypper in php
+zypper in apache2-mod_php5
+zypper in php5-devel
+zypper in libgda
+zypper in libopenssl-devel
+zypper in gcc
+zypper in glibc glibc-common
+zypper in gd
+zypper in gd-devel</pre>
+<p>2- Create nagios User &amp; Group:</p>
+<pre>#/usr/sbin/useradd -m nagios
+#passwd nagios
+#gruopadd nagios</pre>
+<p>3- Add nagcmd group</p>
+<pre>/usr/sbin/groupadd nagcmd
+/usr/sbin/usermod -a -G nagcmd nagios
+/usr/sbin/usermod -a -G nagcmd apache</pre>
+<p>4- Now go to http://www.nagios.org download files .</p>
+<pre>wget http://prdownloads.sourceforge.net/sourceforge/nagios/nrpe-2.13.tar.gz
+wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-3.3.1.tar.gz
+wget http://prdownloads.sourceforge.net/sourceforge/nagiosplug/nagios-plugins-1.4.15.tar.gz
+
+ll
+nagios-3.1.0.tar.gz
+nagios-plugins-1.4.13.tar.gz
+nrpe-2.12.tar.gz
+tar -zxvf nagios-3.1.0.tar.gz
+cd nagios-3.1.0
+./configure --with-command-group=nagcmd
+#make all</pre>
+<p>Now Fixing Nagios make install bug, other wise make install wil through error.</p>
+<pre>sed -i 's:for file in includes/rss/\*;:for file in includes/rss/\*.\*;:g' ./html/Makefile
+sed -i 's:for file in includes/rss/extlib/\*;:for file in includes/rss/extlib/\*.\*;:g' ./html/Makefile</pre>
+<pre>#make install
+#make install-init
+#make install-config
+#make install-commandmode
+#make install-webconf</pre>
+<p>5- Edit your email admin address :<br />
+Go to</p>
+<pre>vi /usr/local/nagios/etc/objects/contacts.cfg</pre>
+<p>6- Create a nagiosadmin account for logging into the Nagios web interfaceassign to this you’ll need it later.</p>
+<pre>htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+enter the password.</pre>
+<p>7- Restart the httpd server :</p>
+<pre>#Service httpd restart</pre>
+<p>The second step : Extract and install plugins<br />
+1- Go to you downloaded nagios tools</p>
+<pre>tar -zxvf nagios-plugins-1.4.13.tar.gz</pre>
+<p>2- Install Plugins</p>
+<pre>cd nagios-plugins
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+make; make install</pre>
+<p>3- Now you have to add nagios to Chkconfig</p>
+<pre>chkconfig --add nagios
+chkconfig nagios on
+chown nagios:www /usr/local/nagios –R</pre>
+<p>4- Verify if you have a good config of nagios with the command</p>
+<pre>/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg</pre>
+<p>5- Check if there are no errors displayed; then start nagios with command :</p>
+<pre>service nagios start</pre>
+<p>To simplify the procesure please disable the selinux and iptables and ip6tables<br />
+now open your browser and http://localhost/nagios orr http://ip/nagios<br />
+Some important file and commands<br />
+Files:</p>
+<pre>/usr/local/nagios/etc/objects/contacts.cfg &gt;&gt;&gt;&gt; mail configuration file
+/usr/local/nagios/etc/objects/amarshaw.cfg &gt;&gt;&gt;&gt; Server wise remote server file
+/usr/local/nagios/etc/nagios.cfg &gt;&gt;&gt; Nagios conf. file, host will add in this file, then only reflect</pre>
+<p>in UI console.</p>
+<pre>/usr/local/nagios/etc/htpasswd.users &gt;&gt;&gt; htpasswd file, UI login user
+/usr/local/nagios/etc/nrpe.cfg
+/usr/local/nagios/etc/cgi.cfg &gt;&gt;&gt; cgi conf. file
+/etc/apache2/conf.d/nagios.conf &gt;&gt;&gt; web conf file for nagios</pre>
+<p>Commands:<br />
+Verifying nagios.cfg file is correct or not.</p>
+<pre>/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+/etc/init.d/nagios stop/start/restart
+/etc/init.d/apache2 start/stop/restart</pre>
+<p>How to add Linux client to the Nagios server<br />
+To start , In the remote host add nagios user &amp; group:</p>
+<pre>/usr/sbin/useradd nagios
+passwd nagios
+groupadd nagios</pre>
+<p>We need two packages .<br />
+Nagios-plugin and Nrpe (download the latst version from the nagios web site)</p>
+<pre>zypper in libopenssl-devel
+wget http://prdownloads.sourceforge.net/sourceforge/nagios/nrpe-2.13.tar.gz</pre>
+<p>Compile and install the plugins. (1.4.13)</p>
+<pre>./configure
+make
+make install</pre>
+<p>The permissions on the plugin directory and the plugins will need to be fixed at this point, so run the following commands.</p>
+<pre>chown nagios.nagios /usr/local/nagios
+chown -R nagios.nagios /usr/local/nagios/libexec</pre>
+<p>Install XINETD .</p>
+<pre>zypper in xinetd</pre>
+<p>Install the NRPE daemon<br />
+Download the source code tarball of the NRPE addon (visit http://www.nagios.org/download/ for links to the latest<br />
+versions). At the time of writing, the latest version of NRPE was 2.12.</p>
+<pre>wget http://prdownloads.sourceforge.net/sourceforge/nagios/nrpe-2.13.tar.gz</pre>
+<p>Extract the NRPE source code tarball.</p>
+<pre>tar xzf nrpe-2.12.tar.gz
+cd nrpe-2.12</pre>
+<p>Compile the NRPE addon.</p>
+<pre>./configure
+makeall</pre>
+<p>Install the NRPE plugin (for testing), daemon, and sample daemon config file.</p>
+<pre>make install-plugin
+make install-daemon
+make install-daemon-config</pre>
+<p>Install the NRPE daemon as a service under xinetd.</p>
+<pre>make install-xinetd</pre>
+<p>Edit the /etc/xinetd.d/nrpe file and add the IP address of the monitoring server to the only_from directive.</p>
+<pre>only_from = 127.0.0.1</pre>
+<p>Add the following entry for the NRPE daemon to the /etc/services file.</p>
+<pre>nrpe 5666/tcp # NRPE</pre>
+<p>Restart the xinetd service.</p>
+<pre>service xinetd restart</pre>
+<p>Test the NRPE daemon locally<br />
+Its time to see if things are working properly…<br />
+Make sure the nrpe daemon is running under xinetd.</p>
+<pre>netstat -at | grep nrpe</pre>
+<p>The output out this command should show something like this:</p>
+<pre>tcp 0 0 *:nrpe *:* LISTEN</pre>
+<p>if you are using the IPtables please add this line :</p>
+<pre>iptables -I RH-Firewall-1-INPUT -p tcp -m tcp –dport 5666 -j ACCEPT</pre>
+<p>Save the new iptables rule so it will survive machine reboots.<br />
+service iptables save<br />
+NRPE commands<br />
+You can test some of these<br />
+by running the following commands:</p>
+<pre>/usr/local/nagios/libexec/check_nrpe -H localhost -c check_users
+/usr/local/nagios/libexec/check_nrpe -H localhost -c check_load
+/usr/local/nagios/libexec/check_nrpe -H localhost -c check_hda1
+/usr/local/nagios/libexec/check_nrpe -H localhost -c check_total_procs
+/usr/local/nagios/libexec/check_nrpe -H localhost -c check_zombie_procs</pre>
+<p>Now back to your Nagios Server , and Install NRPE deamon :<br />
+Download nrpe and extract.</p>
+<pre>/configure
+make all
+Install the NRPE plugin
+make install-plugin</pre>
+<p>check of nrpe is working we will check the nrpe in the remote host 10.1.1.56 :</p>
+<pre>[root@Nagios-Server nrpe-2.12]# /usr/local/nagios/libexec/check_nrpe -H 10.1.1.56
+NRPE v2.12</pre>
+<p>Now in the nagios server :</p>
+<p>Go to</p>
+<pre>cd /usr/local/nagios/etc/objects
+cp linux-server.cfg linux-remotemachine.cfg</pre>
+<p>Open linux-remotemachine.cfg and edit the hostname and IP adress<br />
+Save exit</p>
+<pre>cd /usr/local/nagios/etc
+vi nagios.cfg
+Add this line :</pre>
+<pre># Definitions for monitoring the local (Linux) host
+#cfg_file=/usr/local/nagios/etc/objects/localhost.cfg
+cfg_file=/usr/local/nagios/etc/objects/Nagios-server.cfg
+cfg_file=/usr/local/nagios/etc/objects/remote-machine.cfg</pre>
+<p>save and exit<br />
+Now check if you nagios server nagios can start without errors</p>
+<pre>/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+Nagios 3.1.0
+Copyright (c) 1999-2009 Ethan Galstad (http://www.nagios.org)
+Last Modified: 01-25-2009
+License: GPL
+Reading configuration data…
+Read main config file okay…
+Processing object config file ‘/usr/local/nagios/etc/objects/commands.cfg’…
+Processing object config file ‘/usr/local/nagios/etc/objects/contacts.cfg’…
+Processing object config file ‘/usr/local/nagios/etc/objects/timeperiods.cfg’…
+Processing object config file ‘/usr/local/nagios/etc/objects/templates.cfg’…
+Processing object config file ‘/usr/local/nagios/etc/objects/Nagios-server.cfg’…
+Processing object config file ‘/usr/local/nagios/etc/objects/Tornado01.cfg’…
+Processing object config file ‘/usr/local/nagios/etc/objects/Tornado02.cfg’…
+Read object config files okay…
+Running pre-flight check on configuration data…
+Checking services…
+Checked 25 services.
+Checking hosts…
+Checked 3 hosts.
+Checking host groups…
+Checked 3 host groups.
+Checking service groups…
+Checked 0 service groups.
+Checking contacts…
+Checked 1 contacts.
+Checking contact groups…
+Checked 1 contact groups.
+Checking service escalations…
+Checked 0 service escalations.
+Checking service dependencies…
+Checked 0 service dependencies.
+Checking host escalations…
+Checked 0 host escalations.
+Checking host dependencies…
+Checked 0 host dependencies.
+Checking commands…
+Checked 24 commands.
+Checking time periods…
+Checked 5 time periods.
+Checking for circular paths between hosts…
+Checking for circular host and service dependencies…
+Checking global event handlers…
+Checking obsessive compulsive processor commands…
+Checking misc settings…
+Total Warnings: 0
+Total Errors: 0
+Things look okay – No serious problems were detected during the pre-flight check</pre>
+<pre>Now restart nagios</pre>
+<pre>[root@Nagios-Server etc]# service nagios restart
+Running configuration check…done.
+Stopping nagios: done.
+Starting nagios: done.
+Open your nagios page and see is done !</pre>
+<p>Installing the Windows Agent:<br />
+1. Download the latest stable version of the NSClient++ addon from<br />
+http://sourceforge.net/projects/nscplus<br />
+Install this msi file, during installation it will ask for the nagios server IP, add IP there.<br />
+Now come again to nagios server, and add windows host on Nagios UI.<br />
+1) copy windows.cfg to ur server name file</p>
+<pre>cp /usr/local/nagios/etc/objects/windows.cfg /usr/local/nagios/etc/objects/amarshaw_win.cfg</pre>
+<p>2) change host host_name and IP address in this file.<br />
+3) add entry in nagios.cfg file for this windows host.</p>
+<pre>vi /usr/local/nagios/etc/nagios.cfg
+#cfg_file=/usr/local/nagios/etc/objects/windows.cfg
+cfg_file=/usr/local/nagios/etc/objects/amarshaw_win.cfg</pre>
+<p>4) now check if you nagios server nagios can start without errors</p>
+<pre>/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg</pre>
+<p>5) Now restart nagious</p>
+<pre>/etc/init.d/nagios restart</pre>
